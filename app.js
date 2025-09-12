@@ -1,27 +1,29 @@
 import express from 'express';
 import cors from 'cors';
+import { eventoRouter } from './routes/evento'
+import { actividadRouter } from './routes/evento'
+import { espacioRouter } from './routes/evento'
 
 console.log('🚀 Servidor iniciando...');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const corsOptions = {
+    origin: 'http://localhost:5173', 
+    credentials: true,
+    sameSite: "None"
+  };
+
 // Middlewares
-app.use(cors());
-app.use(express.json());
+app.disable('x-powered-by')
+app.use(cors(corsOptions))
+app.use(express.json())
+app.use(eventoRouter)
+app.use(actividadRouter)
+app.use(espacioRouter)
 
 
-app.get('/', (req, res) => {
-    res.json({ 
-        message: 'API Mapa Interactivo funcionando!',
-        version: '1.0.0' 
-    });
-});
-
-app.get('/health', (req, res) => {
-    res.json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✅ Servidor corriendo en puerto ${PORT}`);
-});
+app.listen(PORT, () => {
+    console.log(`server listening on port http://localhost:${PORT}`)
+})
