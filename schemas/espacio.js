@@ -7,3 +7,7 @@ export const EspacioSchema = z.object({
 export const CategoriaSchema = z.object({
     nombre: z.string().min(2, "El título no puede estar vacío").max(255, "El título no puede exceder 255 caracteres"),
   });
+
+export const CategoriasSchema = z.object({
+  categorias: z.array(z.number()),
+})

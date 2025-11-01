@@ -1,9 +1,13 @@
 import {EventoSchema} from "../schemas/evento.js"
-
+import { EventoModel } from "../models/evento.js"
 export class EventoController {
     static getAll = async (req, res) => {
+        //Validamos la session
+        const { user } = req.session
+        if(!user) return res.status(403).send('Access not authorized')
+
         try{
-        const eventos = await //aca va el modelo
+        const eventos = await EventoModel.getAll()
         res.json(eventos)
         res.status(200).end()
         } catch (error) {
@@ -13,9 +17,13 @@ export class EventoController {
     }
     
     static getById = async (req, res) => {
+        //Validamos la session
+        const { user } = req.session
+        if(!user) return res.status(403).send('Access not authorized')
+
         try{
         const { id } = req.params
-        const evento = await //aca va el modelo
+        const evento = await EventoModel.getById(id)
         res.json(evento)
         res.status(200).end()
         } catch (error) {
@@ -24,9 +32,13 @@ export class EventoController {
         }
     }
     static postEvento = async (req, res) => {
+        //Validamos la session
+        const { user } = req.session
+        if(!user) return res.status(403).send('Access not authorized')
+
         try {
             const validated_input = EventoSchema.parse(req.body);
-            await //aca va el modelo
+            await EventoModel.postEvento(validated_input)
             res.status(201).json({"ok": true}).end(); 
         } catch (error) {
             console.error(error);
@@ -34,9 +46,13 @@ export class EventoController {
         }
     }
     static deleteEvento = async (req, res) => {
+        //Validamos la session
+        const { user } = req.session
+        if(!user) return res.status(403).send('Access not authorized')
+
         try{
         const { id } = req.params
-        await //aca va el modelo
+        await EventoModel.deleteById(id)
         res.status(200).json({"ok": true}).end()
         } catch (error) {
             console.error(error);
@@ -44,10 +60,14 @@ export class EventoController {
         }
     }
     static updateEvento = async (req, res) => {
+        //Validamos la session
+        const { user } = req.session
+        if(!user) return res.status(403).send('Access not authorized')
+
         try{
         const { id } = req.params
         const validated_input = EventoSchema.parse(req.body);
-        await //aca va el modelo
+        await EventoModel.updateEvento(id, validated_input)
         res.status(200).json({"ok": true}).end()
         } catch (error) {
             console.error(error);

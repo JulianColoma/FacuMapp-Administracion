@@ -1,9 +1,11 @@
 import { query } from "../config/database";
 export class ActividadModel {
-  static getAll = async () => {
+
+  static getAll = async () => {  
     const { rows: actividades } = await query("SELECT * FROM actividad");
     return actividades;
   };
+
   static getById = async (id) => {
     const { rows: actividad } = await query(
       "SELECT * FROM actividad WHERE id = $1",
@@ -11,6 +13,7 @@ export class ActividadModel {
     );
     return actividad[0];
   };
+
   static postActividad = async (input) => {
     const {
       nombre,
@@ -35,6 +38,7 @@ export class ActividadModel {
     );
     return true;
   };
+
   static deleteById = async (id) => {
     try {
       await query(`DELETE FROM actividad WHERE id = $1`, [id]);
@@ -42,7 +46,8 @@ export class ActividadModel {
       console.log(e);
     }
   };
-  static updateActividad = async (id, input) => {
+
+  static updateActividad = async (id, input) => { 
     const { rows: actividad } = await this.getById(id);
     const newActividad = {
       ...actividad[0],

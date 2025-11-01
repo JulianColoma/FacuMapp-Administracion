@@ -4,6 +4,7 @@ export class EventoModel {
     const { rows: eventos } = await query("SELECT * FROM evento");
     return eventos;
   };
+
   static getById = async (id) => {
     const { rows: evento } = await query(
       "SELECT * FROM evento WHERE id = $1",
@@ -11,6 +12,7 @@ export class EventoModel {
     );
     return evento[0];
   };
+
   static postEvento = async (input) => {
     const {
       nombre,
@@ -32,6 +34,7 @@ export class EventoModel {
     );
     return true;
   };
+
   static deleteById = async (id) => {
     try {
       await query(`DELETE FROM evento WHERE id = $1`, [id]);
@@ -40,24 +43,24 @@ export class EventoModel {
     }
   };
   static updateEvento = async (id, input) => {
-    const { rows: actividad } = await this.getById(id);
-    const newActividad = {
-      ...actividad[0],
+    const { rows: evento } = await this.getById(id);
+    const newEvento = {
+      ...evento[0],
       ...input,
     };
 
     await query(
-      `UPDATE actividad
+      `UPDATE evento
      SET nombre = $1,
          descripcion = $2,
          fecha_inicio = $3,
          fecha_fin = $4,
      WHERE id = $5;`,
       [
-        newActividad.nombre,
-        newActividad.descripcion,
-        newActividad.fecha_inicio,
-        newActividad.fecha_fin,
+        newEvento.nombre,
+        newEvento.descripcion,
+        newEvento.fecha_inicio,
+        newEvento.fecha_fin,
         id,
       ]
     );

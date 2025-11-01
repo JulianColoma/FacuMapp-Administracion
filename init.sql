@@ -4,7 +4,8 @@ USE mapa_interactivo;
 CREATE TABLE IF NOT EXISTS espacio (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
-    descripcion TEXT
+    descripcion TEXT,
+    imagen TEXT,
 ); 
 
 
@@ -32,6 +33,7 @@ CREATE TABLE IF NOT EXISTS actividad (
 CREATE TABLE IF NOT EXISTS categoria(
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
+    color VARCHAR(255) NOT NULL,
 );
 CREATE TABLE IF NOT EXISTS categoriaxespacio (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -41,3 +43,9 @@ CREATE TABLE IF NOT EXISTS categoriaxespacio (
     FOREIGN KEY (id_categoria) REFERENCES categoria(id) ON DELETE
 );
 
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(255) NOT NULL,
+    contraseña VARCHAR(255)  NOT NULL,
+    administrador BOOLEAN  NOT NULL,
+);

@@ -12,13 +12,13 @@ export class EspacioModel {
     return espacio[0];
   };
   static postEspacio = async (input) => {
-    const { nombre, descripcion } = await input;
+    const { nombre, descripcion, imagen } = await input;
 
     await query(
       `INSERT INTO espacio (nombre,
-    descripcion)
-         VALUES ($1, $2);`,
-      [nombre, descripcion]
+    descripcion,imagen)
+         VALUES ($1, $2, $3);`,
+      [nombre, descripcion, imagen]
     );
     return true;
   };
@@ -30,9 +30,9 @@ export class EspacioModel {
     }
   };
   static updateEspacio = async (id, input) => {
-    const { rows: categoria } = await this.getById(id);
+    const { rows: espacio } = await this.getById(id);
     const newEspacio = {
-      ...categoria[0],
+      ...espacio[0],
       ...input,
     };
 
@@ -40,10 +40,25 @@ export class EspacioModel {
       `UPDATE espacio
      SET nombre = $1,
          descripcion = $2,
-     WHERE id = $3;`,
-      [nombre, descripcion, id]
+         imagen=$3
+     WHERE id = $4;`,
+      [newEspacio.nombre, newEspacio.descripcion, newEspacio.imagen, id]
     );
   };
+ static addCategorias = async (id, input) => {
+  const { categorias } = input
+  const promises = categorias.map(cat => 
+    query(
+      `INSERT INTO categoriaxespacio (id_categoria, id_espacio)
+       VALUES ($1, $2);`,
+      [cat, id]
+    )
+  );
+  
+  await Promise.all(promises);
+};
+
+
 }
 
 export class CategoriaModel {
@@ -86,7 +101,7 @@ export class CategoriaModel {
       `UPDATE categoria
      SET nombre = $1
      WHERE id = $2;`,
-      [nombre, id]
+      [newCategoria.nombre, id]
     );
   };
 }
