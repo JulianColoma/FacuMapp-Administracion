@@ -9,5 +9,5 @@ export const CategoriaSchema = z.object({
   });
 
 export const CategoriasSchema = z.object({
-  categorias: z.array(z.number()),
+  categoria: z.number(),
 })

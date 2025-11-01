@@ -2,10 +2,7 @@ import {EventoSchema} from "../schemas/evento.js"
 import { EventoModel } from "../models/evento.js"
 export class EventoController {
     static getAll = async (req, res) => {
-        //Validamos la session
-        const { user } = req.session
-        if(!user) return res.status(403).send('Access not authorized')
-
+       
         try{
         const eventos = await EventoModel.getAll()
         res.json(eventos)
@@ -17,9 +14,7 @@ export class EventoController {
     }
     
     static getById = async (req, res) => {
-        //Validamos la session
-        const { user } = req.session
-        if(!user) return res.status(403).send('Access not authorized')
+        
 
         try{
         const { id } = req.params

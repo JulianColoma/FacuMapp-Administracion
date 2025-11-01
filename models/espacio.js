@@ -46,19 +46,23 @@ export class EspacioModel {
     );
   };
  static addCategorias = async (id, input) => {
-  const { categorias } = input
-  const promises = categorias.map(cat => 
-    query(
+  const { categoria } = input
+  
+    await query(
       `INSERT INTO categoriaxespacio (id_categoria, id_espacio)
        VALUES ($1, $2);`,
-      [cat, id]
+      [categoria.id, id]
     )
-  );
-  
-  await Promise.all(promises);
 };
-
-
+static removeCategoria = async (id, input) => {
+  const { categoria } = input
+  
+    await query(
+      `DELETE FROM categoriaxespacio 
+       WHERE id_categoria = $1 AND id_espacio = $2;`,
+      [categoria.id, id]
+    )
+}
 }
 
 export class CategoriaModel {

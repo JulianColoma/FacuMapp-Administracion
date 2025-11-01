@@ -11,7 +11,7 @@ espacioRouter.post("/espacio", upload.single("imagen"), EspacioController.postEs
 espacioRouter.put('/espacio/:id',upload.single('imagen'), EspacioController.updateEspacio)
 espacioRouter.delete('/espacio/:id', EspacioController.deleteEspacio)
 espacioRouter.post('/espaciocat/:id', EspacioController.addCategoria) 
-
+espacioRouter.delete('/espaciocat/:id', EspacioController.removeCategoria)
 //CRUD categorias
 categoriaRouter.get('/categoria', CategoriaController.getAll)
 categoriaRouter.get('/categoria/:id', CategoriaController.getById)

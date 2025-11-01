@@ -2,9 +2,6 @@ import {CategoriasSchema, EspacioSchema, CategoriaSchema} from "../schemas/espac
 import {EspacioModel, CategoriaModel} from "../models/espacio.js"
 export class EspacioController {
     static getAll = async (req, res) => {
-        //Validamos la session
-        const { user } = req.session
-        if(!user || !user.administrador) return res.status(403).send('Access not authorized')
 
         try{
         const espacios = await EspacioModel.getAll()
@@ -17,10 +14,7 @@ export class EspacioController {
     }
     
     static getById = async (req, res) => {
-        //Validamos la session
-        const { user } = req.session
-        if(!user || !user.administrador) return res.status(403).send('Access not authorized')
-
+       
         try{
         const { id } = req.params
         const espacios = await EspacioModel.getById(id)
@@ -103,13 +97,25 @@ export class EspacioController {
             res.status(400).json({ error: error.message });
         }
     }
-}
-export class CategoriaController {
-    static getAll = async (req, res) => {
+    static removeCategoria = async (req, res) => {
         //Validamos la session
         const { user } = req.session
         if(!user || !user.administrador) return res.status(403).send('Access not authorized')
 
+        try {
+            const { id } = req.params
+            const validated_input = CategoriasSchema.parse(req.body); 
+            await EspacioModel.removeCategoria(id, validated_input)
+            res.status(201).json({"ok": true}).end(); 
+        } catch (error) {
+            console.error(error);
+            res.status(400).json({ error: error.message });
+        }
+    }
+
+}
+export class CategoriaController {
+    static getAll = async (req, res) => {
         try{
         const categorias = await CategoriaModel.getAll()
         res.json(categorias)
@@ -121,10 +127,7 @@ export class CategoriaController {
     }
     
     static getById = async (req, res) => {
-        //Validamos la session
-        const { user } = req.session
-        if(!user || !user.administrador) return res.status(403).send('Access not authorized')
-
+       
         try{
         const { id } = req.params
         const categoria = await CategoriaModel.getById(id)

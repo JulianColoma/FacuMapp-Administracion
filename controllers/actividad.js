@@ -3,10 +3,7 @@ import { ActividadModel } from "../models/actividad.js"
 
 export class ActividadController {
     static getAll = async (req, res) => {
-        //Validamos la session
-        const { user } = req.session
-        if(!user) return res.status(403).send('Access not authorized')
-
+        
         try{
         const actividades = await ActividadModel.getAll()
         res.json(actividades)
@@ -18,10 +15,7 @@ export class ActividadController {
     }
     
     static getById = async (req, res) => {
-        //Validamos la session
-        const { user } = req.session
-        if(!user) return res.status(403).send('Access not authorized')
-
+       
         try{
         const { id } = req.params
         const actividad = await ActividadModel.getById(id)
