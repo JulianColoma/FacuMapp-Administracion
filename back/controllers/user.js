@@ -41,16 +41,15 @@ export class UserController {
             }
         }
         
-        static getUser = async (req, res) => {
-            const { user } = req.session
-            if(!user) return res.status(403).send('Session expired')
-                try{
-                        res.status(200).json({"ok": true, "user":user})
-                        } catch (error) {
-                            console.error(error);
-                            res.status(400).json({ error: error.message });
-                        }
+        static getAll = async (req, res) => {
+        try{
+        const users = await UserModel.getAll()
+        res.status(200).json(users)
+        } catch (error) {
+            console.error(error);
+            res.status(400).json({ error: error.message });
         }
+    }
         
         static logout = async (req, res) =>{
             res

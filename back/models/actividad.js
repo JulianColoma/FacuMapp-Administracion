@@ -1,17 +1,17 @@
 import { query } from "../config/database.js";
 export class ActividadModel {
 
-  static getAll = async () => {  
-    const actividades = await query("SELECT * FROM actividad");
+  static getAll = async (id) => {  
+    const actividades = await query("SELECT * FROM actividad WHERE id_evento = ?", [id]);
     return actividades;
   };
 
   static getById = async (id) => {
-    const [actividad]  = await query(
+    const actividad  = await query(
       "SELECT * FROM actividad WHERE id = ?",
       [id]
     );
-    return actividad[0];
+    return actividad;
   };
 
   static postActividad = async (input) => {

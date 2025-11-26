@@ -20,7 +20,7 @@ export default function EventoDetalle() {
         setEvento(eventoData);
 
         // Fetch actividades
-        const actividadesResponse = await fetch(`http://localhost:3000/actividad/${id}`);
+        const actividadesResponse = await fetch(`http://localhost:3000/actividadEv/${id}`);
         if (!actividadesResponse.ok) {
           throw new Error("Error al obtener las actividades");
         }

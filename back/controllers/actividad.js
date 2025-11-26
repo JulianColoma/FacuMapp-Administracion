@@ -4,7 +4,8 @@ import { ActividadModel } from "../models/actividad.js"
 export class ActividadController {
     static getAll = async (req, res) => {
         try{
-        const actividades = await ActividadModel.getAll()
+        const { id } = req.params
+        const actividades = await ActividadModel.getAll(id)
         res.json(actividades)
         } catch (error) {
             console.error(error);

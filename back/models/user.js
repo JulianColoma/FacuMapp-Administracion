@@ -38,4 +38,10 @@ static deleteUser = async (name) => {
             console.log(e)
         }
 }
+
+static getAll = async () => {
+    const users = await query("SELECT id, nombre, administrador FROM users");
+    return users;
+  };
+
 }
