@@ -5,8 +5,8 @@ static create = async (input) =>{
 
     const { name, password } = await input
     
-    const {rows:user} = await query(`SELECT * FROM users WHERE nombre = $1`, [name])
-    if(user[0]) throw new Error('Duplicated username');
+    const user = await query(`SELECT * FROM users WHERE nombre = ?`, [name])
+    if(user) throw new Error('Duplicated username');
 
     if (!name || !password)  throw new Error('Missing required fields');
     
@@ -14,7 +14,7 @@ static create = async (input) =>{
 
     await query(
         `INSERT INTO users (nombre, contraseña, administrador)
-         VALUES ($1, $2, $3);`,
+         VALUES (?, ?, ?);`,
         [name, cryptPass, false]
     );
     return true
@@ -22,18 +22,18 @@ static create = async (input) =>{
 static login = async (input) =>{
     const { name, password } = await input
     
-    const {rows:user} = await query(`SELECT * FROM users WHERE nombre = $1`, [name])
+    const user = await query(`SELECT * FROM users WHERE nombre = ?`, [name])
     if(!user) throw new Error('User not found');
 
-    const valid = await bcrypt.compare(password, user[0].password)
+    const valid = await bcrypt.compare(password, user.password)
     if(!valid) throw new Error('invalid password');
     
-    const {password: _, ...publicUser} = user[0]
+    const {password: _, ...publicUser} = user
     return publicUser
 }
 static deleteUser = async (name) => {
     try{
-        await query(`DELETE FROM users WHERE nombre = $1`, [name])
+        await query(`DELETE FROM users WHERE nombre = ?`, [name])
         }catch(e){
             console.log(e)
         }

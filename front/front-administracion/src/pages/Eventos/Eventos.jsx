@@ -9,7 +9,7 @@ export default function Eventos() {
   useEffect(() => {
     const fetchEventos = async () => {
       try {
-        const response = await fetch("http://localhost:3000/eventos");
+        const response = await fetch("http://localhost:3000/evento");
         if (!response.ok) {
           throw new Error("Error al obtener los eventos");
         }

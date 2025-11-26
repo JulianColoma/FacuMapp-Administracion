@@ -1,12 +1,12 @@
 import { query } from "../config/database.js";
 export class EspacioModel {
   static getAll = async () => {
-    const { rows: espacios } = await query("SELECT * FROM espacio");
+    const espacios  = await query("SELECT * FROM espacio");
     return espacios;
   };
   static getById = async (id) => {
-    const { rows: espacio } = await query(
-      "SELECT * FROM espacio WHERE id = $1",
+    const espacio  = await query(
+      "SELECT * FROM espacio WHERE id = ?",
       [id]
     );
     return espacio[0];
@@ -17,20 +17,20 @@ export class EspacioModel {
     await query(
       `INSERT INTO espacio (nombre,
     descripcion,imagen)
-         VALUES ($1, $2, $3);`,
+         VALUES (?, ?, ?);`,
       [nombre, descripcion, imagen]
     );
     return true;
   };
   static deleteById = async (id) => {
     try {
-      await query(`DELETE FROM espacio WHERE id = $1`, [id]);
+      await query(`DELETE FROM espacio WHERE id = ?`, [id]);
     } catch (e) {
       console.log(e);
     }
   };
   static updateEspacio = async (id, input) => {
-    const { rows: espacio } = await this.getById(id);
+    const espacio = await this.getById(id);
     const newEspacio = {
       ...espacio[0],
       ...input,
@@ -38,10 +38,10 @@ export class EspacioModel {
 
     await query(
       `UPDATE espacio
-     SET nombre = $1,
-         descripcion = $2,
-         imagen=$3
-     WHERE id = $4;`,
+     SET nombre = ?,
+         descripcion = ?,
+         imagen=?
+     WHERE id = ?;`,
       [newEspacio.nombre, newEspacio.descripcion, newEspacio.imagen, id]
     );
   };
@@ -50,7 +50,7 @@ export class EspacioModel {
   
     await query(
       `INSERT INTO categoriaxespacio (id_categoria, id_espacio)
-       VALUES ($1, $2);`,
+       VALUES (?, ?);`,
       [categoria.id, id]
     )
 };
@@ -59,7 +59,7 @@ static removeCategoria = async (id, input) => {
   
     await query(
       `DELETE FROM categoriaxespacio 
-       WHERE id_categoria = $1 AND id_espacio = $2;`,
+       WHERE id_categoria = ? AND id_espacio = ?;`,
       [categoria.id, id]
     )
 }
@@ -67,35 +67,35 @@ static removeCategoria = async (id, input) => {
 
 export class CategoriaModel {
   static getAll = async () => {
-    const { rows: categorias } = await query("SELECT * FROM categoria");
+    const categorias = await query("SELECT * FROM categoria");
     return categorias;
   };
   static getById = async (id) => {
-    const { rows: categoria } = await query(
-      "SELECT * FROM categoria WHERE id = $1",
+    const categoria = await query(
+      "SELECT * FROM categoria WHERE id = ?",
       [id]
     );
-    return categoria[0];
+    return categoria;
   };
   static postCategoria = async (input) => {
-    const { nombre} = await input;
+    const { nombre } = await input;
 
     await query(
       `INSERT INTO categoria (nombre)
-         VALUES ($1);`,
+         VALUES (?);`,
       [nombre]
     );
     return true;
   };
   static deleteById = async (id) => {
     try {
-      await query(`DELETE FROM categoria WHERE id = $1`, [id]);
+      await query(`DELETE FROM categoria WHERE id = ?`, [id]);
     } catch (e) {
       console.log(e);
     }
   };
   static updateCategoria = async (id, input) => {
-    const { rows: categoria } = await this.getById(id);
+    const categoria = await this.getById(id);
     const newCategoria = {
       ...categoria[0],
       ...input,
@@ -103,8 +103,8 @@ export class CategoriaModel {
 
     await query(
       `UPDATE categoria
-     SET nombre = $1
-     WHERE id = $2;`,
+     SET nombre = ?
+     WHERE id = ?;`,
       [newCategoria.nombre, id]
     );
   };

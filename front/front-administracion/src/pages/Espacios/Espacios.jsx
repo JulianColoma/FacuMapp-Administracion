@@ -8,7 +8,7 @@ export default function Espacios() {
   useEffect(() => {
     const fetchEspacios = async () => {
       try {
-        const response = await fetch("http://localhost:3000/espacios");
+        const response = await fetch("http://localhost:3000/espacio");
         if (!response.ok) {
           throw new Error("Error al obtener los espacios");
         }

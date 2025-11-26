@@ -5,10 +5,10 @@ export default function Usuarios() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  /*useEffect(() => {
     const fetchUsuarios = async () => {
       try {
-        const response = await fetch("http://localhost:3000/usuarios");
+        const response = await fetch("http://localhost:3000/");
         if (!response.ok) {
           throw new Error("Error al obtener los usuarios");
         }
@@ -22,7 +22,7 @@ export default function Usuarios() {
     };
 
     fetchUsuarios();
-  }, []);
+  }, []);*/
 
   if (loading) {
     return <div>Cargando...</div>;

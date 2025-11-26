@@ -12,7 +12,7 @@ export default function EventoDetalle() {
     const fetchEventoYActividades = async () => {
       try {
         // Fetch evento details
-        const eventoResponse = await fetch(`http://localhost:3000/eventos/${id}`);
+        const eventoResponse = await fetch(`http://localhost:3000/evento/${id}`);
         if (!eventoResponse.ok) {
           throw new Error("Error al obtener los detalles del evento");
         }
@@ -20,7 +20,7 @@ export default function EventoDetalle() {
         setEvento(eventoData);
 
         // Fetch actividades
-        const actividadesResponse = await fetch(`http://localhost:3000/eventos/${id}/actividades`);
+        const actividadesResponse = await fetch(`http://localhost:3000/actividad/${id}`);
         if (!actividadesResponse.ok) {
           throw new Error("Error al obtener las actividades");
         }

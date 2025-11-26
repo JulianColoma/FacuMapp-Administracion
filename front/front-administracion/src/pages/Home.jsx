@@ -9,24 +9,22 @@ export default function Home() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [eventosRes, espaciosRes, usuariosRes] = await Promise.all([
-          fetch('http://localhost:3000/eventos'),
-          fetch('http://localhost:3000/espacios'),
-          fetch('http://localhost:3000/usuarios'),
+        const [eventosRes, espaciosRes] = await Promise.all([
+          fetch('http://localhost:3000/evento'),
+          fetch('http://localhost:3000/espacio')
         ]);
 
-        if (!eventosRes.ok || !espaciosRes.ok || !usuariosRes.ok) {
+        if (!eventosRes|| !espaciosRes) {
           throw new Error('Error al obtener las estadísticas');
         }
 
         const eventosData = await eventosRes.json();
         const espaciosData = await espaciosRes.json();
-        const usuariosData = await usuariosRes.json();
+       
 
         setStats({
           eventos: eventosData.length,
           espacios: espaciosData.length,
-          usuarios: usuariosData.length,
         });
       } catch (error) {
         setError(error.message);
@@ -69,17 +67,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          {/* Card Usuarios */}
-          <div className="col-md-4 mb-4">
-            <div className="card text-white bg-info h-100">
-              <div className="card-body">
-                <h5 className="card-title">Usuarios</h5>
-                <p className="card-text display-4">{stats.usuarios}</p>
-                <Link to="/usuarios" className="btn btn-light">Gestionar Usuarios</Link>
-              </div>
-            </div>
-          </div>
+        
         </div>
       )}
     </div>
