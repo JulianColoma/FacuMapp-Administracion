@@ -43,7 +43,7 @@ export class EventoModel {
     }
   };
   static updateEvento = async (id, input) => {
-    const { rows: evento } = await this.getById(id);
+    const  evento  = await this.getById(id);
     const newEvento = {
       ...evento[0],
       ...input,
@@ -54,7 +54,7 @@ export class EventoModel {
      SET nombre = ?,
          descripcion = ?,
          fecha_inicio = ?,
-         fecha_fin = ?,
+         fecha_fin = ?
      WHERE id = ?;`,
       [
         newEvento.nombre,

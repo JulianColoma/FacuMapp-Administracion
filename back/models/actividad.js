@@ -48,7 +48,7 @@ export class ActividadModel {
   };
 
   static updateActividad = async (id, input) => { 
-    const { rows: actividad } = await this.getById(id);
+    const  actividad = await this.getById(id);
     const newActividad = {
       ...actividad[0],
       ...input,

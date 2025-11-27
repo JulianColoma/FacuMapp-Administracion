@@ -4,8 +4,16 @@ import jwt from 'jsonwebtoken'
 dotenv.config()
 
 export function getUserData(req, res, next) {
-    const token = req.cookies.access_token
-    console.log("token recibido:", token)
+    let token = null;
+
+    if (req.cookies.access_token) {
+        token = req.cookies.access_token;
+    } else if (req.headers.authorization) {
+        const [bearer, authToken] = req.headers.authorization.split(' ');
+        if (bearer === 'Bearer') {
+            token = authToken;
+        }
+    }
 
     if (!req.session) {
         req.session = {}

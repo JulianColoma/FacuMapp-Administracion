@@ -51,54 +51,11 @@ export class EspacioController {
       res.status(400).json({ error: error.message });
     }
   };
+  
+  
   static deleteEspacio = async (req, res) => {
     const { user } = req.session;
     if (!user || !user.admin)
-      return res.status(403).send("Access not authorized");
-    try {
-      const { id } = req.params;
-      await EspacioModel.deleteById(id);
-      res.status(200).json({ ok: true });
-    } catch (error) {
-      console.error(error);
-      res.status(400).json({ error: error.message });
-    }
-  };
-  static updateEspacio = async (req, res) => {
-    //Validamos la session
-    const { user } = req.session;
-    if (!user || !user.admin)
-      return res.status(403).send("Access not authorized");
-
-    try {
-      const { id } = req.params;
-      const validated_input = EspacioSchema.parse(req.body);
-      if (req.file) {
-        //Obtener el espacio actual de la BD
-        const espacioActual = await EspacioModel.getById(id);
-        //Borrar la imagen anterior del servidor si existe
-        if (espacioActual && espacioActual.imagen) {
-          const oldPath = path.join(process.cwd(), espacioActual.imagen);
-          //Guardar la nueva ruta
-          if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-        }
-        validated_input.imagen = `/uploads/${req.file.filename}`;
-      } else {
-        // Si no se sube una nueva imagen, mantenemos la anterior
-        const espacioActual = await EspacioModel.getById(id);
-        validated_input.imagen = espacioActual.imagen;
-      }
-      await EspacioModel.postEspacio(validated_input);
-      res.status(201).json({ ok: true });
-    } catch (error) {
-      console.error(error);
-      res.status(400).json({ error: error.message });
-    }
-  };
-
-  static deleteEspacio = async (req, res) => {
-    const { user } = req.session;
-    if (!user || !user.administrador)
       return res.status(403).send("Access not authorized");
 
     try {
@@ -122,7 +79,7 @@ export class EspacioController {
 
   static updateEspacio = async (req, res) => {
     const { user } = req.session;
-    if (!user || !user.administrador)
+    if (!user || !user.admin)
       return res.status(403).send("Access not authorized");
 
     try {
