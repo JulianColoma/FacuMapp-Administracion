@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
@@ -8,7 +9,6 @@ export default function Usuarios() {
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
-        // Asegúrate de que tu backend devuelve el ID en el SELECT
         const response = await fetch("http://localhost:3000/getuser");
         if (!response.ok) {
           throw new Error("Error al obtener los usuarios");
@@ -34,48 +34,52 @@ export default function Usuarios() {
   }
 
   return (
-    
     <div className="container-fluid px-4 mt-5">
-      
-     
-      <h1 className="mb-4 display-6 fw-bold">Gestión de Usuarios</h1>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 className="display-6 fw-bold">Gestión de Usuarios</h1>
+        <Link to="/add-user" className="btn btn-primary">
+          Agregar Usuario
+        </Link>
+      </div>
 
-    
       <div className="card shadow-sm rounded-4 overflow-hidden border-0">
         <div className="card-body p-0">
           <div className="table-responsive">
-            
-           
             <table className="table table-striped table-hover mb-0 fs-5 align-middle">
-              
-             
               <thead className="table-dark text-uppercase fs-6">
                 <tr>
-                 
                   <th scope="col" className="p-4">Nombre</th>
                   <th scope="col" className="p-4 text-center">Rol</th>
+                  <th scope="col" className="p-4 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {usuarios.map((u) => (
-                  <tr key={u.id }> 
-                    
+                  <tr key={u.id}>
                     <td className="p-4">{u.nombre}</td>
                     <td className="p-4 text-center">
-                     
                       <span
                         className={`badge fs-6 px-4 py-2 rounded-pill ${
-                          u.administrador ? "bg-primary bg-gradient" : "bg-secondary bg-gradient text-dark bg-opacity-25"
+                          u.administrador
+                            ? "bg-primary bg-gradient"
+                            : "bg-secondary bg-gradient text-dark bg-opacity-25"
                         }`}
                       >
                         {u.administrador ? "Administrador" : "Usuario"}
                       </span>
                     </td>
+                    <td className="p-4 text-center">
+                      <button className="btn btn-sm btn-outline-primary me-2">
+                        Editar
+                      </button>
+                      <button className="btn btn-sm btn-outline-danger">
+                        Eliminar
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            
           </div>
         </div>
       </div>

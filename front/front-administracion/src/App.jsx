@@ -1,9 +1,16 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Espacios from "./pages/Espacios/Espacios.jsx";
+import AddEspacio from "./pages/Espacios/AddEspacio.jsx";
+import EditEspacio from "./pages/Espacios/EditEspacio.jsx";
 import Eventos from "./pages/Eventos/Eventos.jsx";
+import AddEvento from "./pages/Eventos/AddEvento.jsx";
+import EditEvento from "./pages/Eventos/EditEvento.jsx";
 import EventoDetalle from "./pages/Eventos/EventoDetalle.jsx";
+import AddActividad from "./pages/Actividades/AddActividad.jsx";
+import EditActividad from "./pages/Actividades/EditActividad.jsx";
 import Usuarios from "./pages/Usuarios.jsx";
+import AddUser from "./pages/AddUser.jsx";
 import Login from "./pages/Login.jsx";
 import "./App.scss";
 
@@ -32,9 +39,16 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/espacios" element={<Espacios />} />
+            <Route path="/add-espacio" element={<AddEspacio />} />
+            <Route path="/edit-espacio/:id" element={<EditEspacio />} />
             <Route path="/eventos" element={<Eventos />} />
+            <Route path="/add-evento" element={<AddEvento />} />
+            <Route path="/edit-evento/:id" element={<EditEvento />} />
             <Route path="/eventos/:id" element={<EventoDetalle />} />
+            <Route path="/eventos/:id/add-actividad" element={<AddActividad />} />
+            <Route path="/eventos/:id/edit-actividad/:actividadId" element={<EditActividad />} />
             <Route path="/usuarios" element={<Usuarios />} />
+            <Route path="/add-user" element={<AddUser />} />
             <Route path="/login" element={<Login />} />
           </Routes>
         </div>

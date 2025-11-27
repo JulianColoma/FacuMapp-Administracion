@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Espacios() {
   const [espacios, setEspacios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [imagen, setImagen] = useState(null);
 
   const fetchEspacios = async () => {
     try {
-      setLoading(true);
       const response = await fetch("http://localhost:3000/espacio");
       if (!response.ok) {
         throw new Error("Error al obtener los espacios");
@@ -28,31 +25,21 @@ export default function Espacios() {
     fetchEspacios();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleDelete = async (id) => {
+    if (window.confirm("¿Estás seguro de que quieres eliminar este espacio?")) {
+      try {
+        const response = await fetch(`http://localhost:3000/espacio/${id}`, {
+          method: "DELETE",
+        });
 
-    const formData = new FormData();
-    formData.append("nombre", nombre);
-    formData.append("descripcion", descripcion);
-    formData.append("imagen", imagen);
+        if (!response.ok) {
+          throw new Error("Error al eliminar el espacio");
+        }
 
-    try {
-      const response = await fetch("http://localhost:3000/espacio", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al crear el espacio");
+        fetchEspacios(); // Recargar espacios
+      } catch (error) {
+        setError(error.message);
       }
-
-      // Limpiar el formulario y recargar los espacios
-      setNombre("");
-      setDescripcion("");
-      setImagen(null);
-      fetchEspacios();
-    } catch (error) {
-      setError(error.message);
     }
   };
 
@@ -65,60 +52,50 @@ export default function Espacios() {
   }
 
   return (
-    <div>
-      <h1>Espacios</h1>
-
-      <form onSubmit={handleSubmit} className="mb-4">
-        <div className="mb-3">
-          <label htmlFor="nombre" className="form-label">
-            Nombre
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="descripcion" className="form-label">
-            Descripción
-          </label>
-          <textarea
-            className="form-control"
-            id="descripcion"
-            rows="3"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-            required
-          ></textarea>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="imagen" className="form-label">
-            Imagen
-          </label>
-          <input
-            type="file"
-            className="form-control"
-            id="imagen"
-            onChange={(e) => setImagen(e.target.files[0])}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Crear Espacio
-        </button>
-      </form>
-
+    <div className="container-fluid px-4 mt-5">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1 className="display-6 fw-bold">Gestión de Espacios</h1>
+        <Link to="/add-espacio" className="btn btn-primary">
+          Agregar Espacio
+        </Link>
+      </div>
       <div className="row">
-        {espacios.map((espacio) => (
-          <div key={espacio.id} className="col-12 col-md-4 mb-3">
+        {espacios.map((esp) => (
+          <div key={esp.id} className="col-12 col-md-4 mb-3">
             <div className="card">
+              {esp.imagen ? (
+                <img
+                  src={`http://localhost:3000/uploads/${esp.imagen}`}
+                  className="card-img-top"
+                  alt={esp.nombre}
+                  style={{ height: "200px", objectFit: "cover" }}
+                />
+              ) : (
+                <div
+                  className="card-img-top bg-secondary"
+                  style={{ height: "200px" }}
+                ></div>
+              )}
               <div className="card-body">
-                <h5 className="card-title">{espacio.nombre}</h5>
-                <p className="card-text">{espacio.descripcion}</p>
+                <h5 className="card-title">{esp.nombre}</h5>
+                <p className="card-text">{esp.descripcion}</p>
+                <p className="card-text">
+                  <small className="text-muted">Capacidad: {esp.capacidad}</small>
+                </p>
+                <div className="d-flex justify-content-end">
+                  <Link
+                    to={`/edit-espacio/${esp.id}`}
+                    className="btn btn-sm btn-outline-primary me-2"
+                  >
+                    Editar
+                  </Link>
+                  <button
+                    className="btn btn-sm btn-outline-danger"
+                    onClick={() => handleDelete(esp.id)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </div>
             </div>
           </div>
