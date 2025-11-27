@@ -1,48 +1,52 @@
 import { query } from "../config/database.js";
 import bcrypt from "bcrypt"
-export class  UserModel{
-static create = async (input) =>{
 
-    const { nombre, contrasena } = await input
-    
-    const user = await query(`SELECT * FROM users WHERE nombre = ?`, [nombre])
-    if(user) throw new Error('Duplicated username');
+export class UserModel {
+  static create = async (input) => {
+    const { nombre, contrasena, administrador } = input;
 
-    if (!nombre || !contrasena)  throw new Error('Missing required fields');
-    
-    const cryptPass = await bcrypt.hash(password, 10)
+    const [existingUser] = await query('SELECT * FROM users WHERE nombre = ?', [nombre]);
+    if (existingUser) {
+      throw new Error('Duplicated username');
+    }
+
+    const cryptPass = await bcrypt.hash(contrasena, 10);
 
     await query(
-        `INSERT INTO users (nombre, contrasena, administrador)
-         VALUES (?, ?, ?);`,
-        [name, cryptPass, false]
+      `INSERT INTO users (nombre, contrasena, administrador)
+       VALUES (?, ?, ?);`,
+      [nombre, cryptPass, administrador || false]
     );
-    return true
-} 
-static login = async (input) =>{
-    const { nombre, contrasena } = await input
-    
-    const user = await query(`SELECT * FROM users WHERE nombre = ?`, [nombre])
-    if(!user) throw new Error('User not found');
+    return true;
+  }
 
-    const valid = await bcrypt.compare(contrasena, user.contrasena)
-    if(!valid) throw new Error('invalid password');
-    
-    const {contrasena: _, ...publicUser} = user
-    return publicUser
-}
+  static login = async (input) => {
+    const { nombre, contrasena } = input;
 
-static deleteUser = async (name) => {
-    try{
-        await query(`DELETE FROM users WHERE nombre = ?`, [name])
-        }catch(e){
-            console.log(e)
-        }
-}
+    const [user] = await query('SELECT * FROM users WHERE nombre = ?', [nombre]);
+    if (!user) {
+      throw new Error('User not found');
+    }
 
-static getAll = async () => {
+    const valid = await bcrypt.compare(contrasena, user.contrasena);
+    if (!valid) {
+      throw new Error('invalid password');
+    }
+
+    const { contrasena: _, ...publicUser } = user;
+    return publicUser;
+  }
+
+  static deleteUser = async (name) => {
+    try {
+      await query(`DELETE FROM users WHERE nombre = ?`, [name]);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  static getAll = async () => {
     const users = await query("SELECT id, nombre, administrador FROM users");
     return users;
   };
-
 }
