@@ -1,5 +1,5 @@
 import { UserModel } from "../models/user.js";
-import { userSchema } from "../schemas/user.js"
+import { userLoginSchema, userSchema } from "../schemas/user.js"
 import dotenv from 'dotenv'
 import jwt from 'jsonwebtoken'
 
@@ -22,7 +22,7 @@ export class UserController {
         }
     static login = async (req, res) => {
             try {
-                const validated_input = userSchema.parse(req.body);
+                const validated_input = userLoginSchema.parse(req.body);
                 const user = await UserModel.login(validated_input)
                 const exp = user.admin? process.env.ADMINEXP : process.env.USEREXP
                 const token = jwt.sign({name: user.nombre, user_id: user.id, admin: user.administrador}, process.env.SECRET,{

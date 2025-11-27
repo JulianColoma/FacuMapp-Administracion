@@ -1,8 +1,8 @@
 import { useState } from "react";
 
 export default function Login() {
-  const [username, setUserName] = useState("");
-  const [password, setPassword] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [contrasena, setcontrasena] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -12,7 +12,7 @@ export default function Login() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ nombre, contrasena }),
       });
       const data = await response.json();
       console.log(data);
@@ -32,15 +32,15 @@ export default function Login() {
                 type="text"
                 placeholder="Usuario"
                 className="form-control mb-2"
-                value={username}
-                onChange={(e) => setUserName(e.target.value)}
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
               />
               <input
                 type="password"
-                placeholder="Contraseña"
+                placeholder="contrasena"
                 className="form-control mb-3"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={contrasena}
+                onChange={(e) => setcontrasena(e.target.value)}
               />
               <button type="submit" className="btn btn-primary w-100">
                 Ingresar
