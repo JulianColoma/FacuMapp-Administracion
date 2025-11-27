@@ -6,6 +6,23 @@ export default function Usuarios() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:3000/deleteuser/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error("Error al eliminar el usuario");
+      }
+      setUsuarios(usuarios.filter((u) => u.id !== id));
+    } catch (error) {
+      alert("No se pudo eliminar el usuario: " + error.message);
+    }
+  };
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
@@ -30,7 +47,9 @@ export default function Usuarios() {
   }
 
   if (error) {
-    return <div className="alert alert-danger m-4 p-4 fs-5">Error: {error}</div>;
+    return (
+      <div className="alert alert-danger m-4 p-4 fs-5">Error: {error}</div>
+    );
   }
 
   return (
@@ -48,9 +67,15 @@ export default function Usuarios() {
             <table className="table table-striped table-hover mb-0 fs-5 align-middle">
               <thead className="table-dark text-uppercase fs-6">
                 <tr>
-                  <th scope="col" className="p-4">Nombre</th>
-                  <th scope="col" className="p-4 text-center">Rol</th>
-                  <th scope="col" className="p-4 text-center">Acciones</th>
+                  <th scope="col" className="p-4">
+                    Nombre
+                  </th>
+                  <th scope="col" className="p-4 text-center">
+                    Rol
+                  </th>
+                  <th scope="col" className="p-4 text-center">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -69,10 +94,7 @@ export default function Usuarios() {
                       </span>
                     </td>
                     <td className="p-4 text-center">
-                      <button className="btn btn-sm btn-outline-primary me-2">
-                        Editar
-                      </button>
-                      <button className="btn btn-sm btn-outline-danger">
+                      <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(u.id)}>
                         Eliminar
                       </button>
                     </td>

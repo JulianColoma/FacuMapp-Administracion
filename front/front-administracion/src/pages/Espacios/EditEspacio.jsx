@@ -49,6 +49,7 @@ export default function EditEspacio() {
       const response = await fetch(`http://localhost:3000/espacio/${id}`, {
         method: "PUT",
         body: formData,
+        credentials: "include",
       });
 
       if (!response.ok) {

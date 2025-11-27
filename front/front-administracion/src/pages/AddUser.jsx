@@ -24,6 +24,7 @@ const AddUser = () => {
           contrasena: password,
           administrador: rol === 'admin',
         }),
+        credentials: 'include',
       });
 
       if (!response.ok) {

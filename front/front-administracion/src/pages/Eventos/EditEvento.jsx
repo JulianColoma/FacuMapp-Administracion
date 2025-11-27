@@ -48,6 +48,7 @@ export default function EditEvento() {
           fecha_inicio: fechaInicio,
           fecha_fin: fechaFin,
         }),
+        credentials: "include",
       });
 
       if (!response.ok) {

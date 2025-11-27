@@ -37,9 +37,9 @@ export class UserModel {
     return publicUser;
   }
 
-  static deleteUser = async (name) => {
+  static deleteUser = async (id) => {
     try {
-      await query(`DELETE FROM users WHERE nombre = ?`, [name]);
+      await query(`DELETE FROM users WHERE id = ?`, [id]);
     } catch (e) {
       console.log(e);
     }
@@ -49,4 +49,5 @@ export class UserModel {
     const users = await query("SELECT id, nombre, administrador FROM users");
     return users;
   };
+
 }

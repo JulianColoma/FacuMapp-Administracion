@@ -24,6 +24,7 @@ export default function AddEspacio() {
       const response = await fetch("http://localhost:3000/espacio", {
         method: "POST",
         body: formData,
+        credentials: "include",
       });
 
       if (!response.ok) {

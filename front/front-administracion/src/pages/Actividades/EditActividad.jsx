@@ -55,6 +55,7 @@ export default function EditActividad() {
             hora_inicio: horaInicio,
             hora_fin: horaFin,
           }),
+          credentials: "include",
         }
       );
 

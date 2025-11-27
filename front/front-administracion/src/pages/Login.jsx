@@ -18,7 +18,7 @@ export default function Login() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ nombre, contrasena }),
-        credentials: 'include', // Asegúrate de incluir las credenciales (cookies)
+        credentials: 'include', 
       });
 
       const data = await response.json();

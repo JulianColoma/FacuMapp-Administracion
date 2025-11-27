@@ -28,6 +28,7 @@ export default function AddActividad() {
           hora_fin: horaFin,
           id_evento: eventoId,
         }),
+        credentials: "include",
       });
 
       if (!response.ok) {

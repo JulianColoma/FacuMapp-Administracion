@@ -44,6 +44,7 @@ export default function EventoDetalle() {
           `http://localhost:3000/actividad/${actividadId}`,
           {
             method: "DELETE",
+            credentials: "include",
           }
         );
 

@@ -51,7 +51,7 @@ app.use(getUserData);
 app.get("/test", (req, res) => {
     res.status(200).json({
         ok: true,
-        message: "API funcionando correctamente 🚀",
+        message: "API funcionando correctamente chavales",
         time: new Date().toISOString()
     });
 });

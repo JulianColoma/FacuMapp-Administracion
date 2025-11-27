@@ -24,6 +24,7 @@ export default function AddEvento() {
           fecha_inicio: fechaInicio,
           fecha_fin: fechaFin,
         }),
+        credentials: "include",
       });
 
       if (!response.ok) {
