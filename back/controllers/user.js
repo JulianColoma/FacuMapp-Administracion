@@ -17,6 +17,10 @@ export class UserController {
       res.status(201).json({ ok: true }).end();
     } catch (error) {
       console.error(error);
+      if (error.name === 'ZodError') {
+        const errorMessage = error.errors[0]?.message || 'Error de validación';
+        return res.status(400).json({ error: errorMessage });
+      }
       res.status(400).json({ error: error.message });
     }
   };
@@ -35,12 +39,18 @@ export class UserController {
       res
         .cookie("access_token", token, {
           httpOnly: true,
-          secure: process.env.ENV == "production",
-          sameSite: process.env.ENV == "production" ? "None" : "Lax",
+          // In dev we need SameSite=None so the cookie is sent from http://localhost:5173
+          // Secure can remain false locally because we are not on HTTPS
+          secure: process.env.ENV === "production",
+          sameSite: process.env.ENV === "production" ? "None" : "None",
         })
         .send({ user, token });
     } catch (error) {
       console.error(error);
+      if (error.name === 'ZodError') {
+        const errorMessage = error.errors[0]?.message || 'Error de validación';
+        return res.status(400).json({ error: errorMessage });
+      }
       res.status(400).json({ error: error.message });
     }
   };

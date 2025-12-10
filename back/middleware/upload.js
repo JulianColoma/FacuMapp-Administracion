@@ -28,9 +28,9 @@ const storage = multer.diskStorage({
 
 // Filtro opcional de tipo de archivo
 const fileFilter = (req, file, cb) => {
-  const allowed = ["image/webp", "image/png"];
+  const allowed = ["image/webp", "image/png", "image/jpeg", "image/jpg"];
   if (allowed.includes(file.mimetype)) cb(null, true);
-  else cb(new Error("Solo se permiten imágenes WEBP o PNG"));
+  else cb(new Error("Solo se permiten imágenes WEBP, PNG, JPG o JPEG"));
 };
 
 export const upload = multer({ storage, fileFilter });

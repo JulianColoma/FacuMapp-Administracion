@@ -2,38 +2,40 @@ import { z } from 'zod'
 
 export const actividadSchema = z.object({
     nombre: z.string()
-        .min(2, "El título no puede estar vacío")
-        .max(255, "El título no puede exceder 255 caracteres"),
+        .trim()
+        .min(1, "El nombre es obligatorio")
+        .max(255, "El nombre no puede exceder 255 caracteres"),
         
     descripcion: z.string()
-        .min(3, "La descripción no puede estar vacía"), 
+        .trim()
+        .min(1, "La descripción es obligatoria"), 
         
-    fecha: z.coerce.date() 
+    fecha: z.coerce.date({ required_error: "La fecha es obligatoria" }) 
         .refine((d) => d >= new Date(new Date().setHours(0,0,0,0)), {
              message: "La fecha no puede ser anterior a hoy",
         }),
         
-    hora_inicio: z.string().time(),
+    hora_inicio: z.string().time("La hora de inicio debe ser una hora válida"),
     
-    hora_fin: z.string().time(),
+    hora_fin: z.string().time("La hora de fin debe ser una hora válida"),
 
     id_espacio: z.number({
-        required_error: "El id_espacio es obligatorio",
-        invalid_type_error: "El id_espacio debe ser un número"
+        required_error: "El espacio es obligatorio",
+        invalid_type_error: "El espacio debe ser un número"
     })
-    .int("El id_espacio debe ser un número entero")
-    .positive("El id_espacio debe ser un ID válido (positivo)"),
+    .int("El espacio debe ser un número entero")
+    .positive("Debes seleccionar un espacio válido"),
 
     
     id_evento: z.number({
-        required_error: "El id_evento es obligatorio",
-        invalid_type_error: "El id_evento debe ser un número"
+        required_error: "El evento es obligatorio",
+        invalid_type_error: "El evento debe ser un número"
     })
-    .int("El id_evento debe ser un número entero")
-    .positive("El id_evento debe ser un ID válido (positivo)")
+    .int("El evento debe ser un número entero")
+    .positive("Debes seleccionar un evento válido")
 
 })
 .refine((data) => data.hora_fin > data.hora_inicio, {
-    message: "La hora de fin debe ser posterior a la de inicio",
+    message: "La hora de fin debe ser posterior a la hora de inicio",
     path: ["hora_fin"],
 });

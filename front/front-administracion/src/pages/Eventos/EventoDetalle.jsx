@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { API_URL } from "../../config";
 
 export default function EventoDetalle() {
@@ -39,23 +40,52 @@ export default function EventoDetalle() {
   }, [id]);
 
   const handleDelete = async (actividadId) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar esta actividad?")) {
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar"
+    });
+
+    if (result.isConfirmed) {
       try {
+        const token = localStorage.getItem("token");
         const response = await fetch(
           `${API_URL}/actividad/${actividadId}`,
           {
             method: "DELETE",
             credentials: "include",
+            headers: {
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
           }
         );
 
         if (!response.ok) {
+          if (response.status === 403) {
+            throw new Error("No tienes permisos para eliminar actividades. Debes ser administrador.");
+          }
           throw new Error("Error al eliminar la actividad");
         }
 
+        await Swal.fire({
+          icon: "success",
+          title: "¡Eliminado!",
+          text: "La actividad ha sido eliminada",
+          confirmButtonText: "Aceptar"
+        });
         fetchEventoYActividades(); // Recargar actividades
       } catch (error) {
-        setError(error.message);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.message.includes("permisos") ? error.message : "Error al eliminar la actividad",
+          confirmButtonText: "Aceptar"
+        });
       }
     }
   };

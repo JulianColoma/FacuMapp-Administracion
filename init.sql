@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS espacio (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     descripcion TEXT,
-    imagen TEXT
+    imagen TEXT,
+    capacidad INT NOT NULL DEFAULT 0
 ); 
 
 CREATE TABLE IF NOT EXISTS evento (
@@ -68,11 +69,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- INSERTS DE DATOS
 
 -- 1. Insertar Espacios
-INSERT INTO espacio (nombre, descripcion, imagen) VALUES 
-('Auditorio Principal', 'Sala magna con capacidad para 500 personas, proyector 4K y sistema de sonido envolvente.', 'auditorio_main.jpg'),
-('Laboratorio de Cómputo A', 'Aula equipada con 30 ordenadores de alto rendimiento para talleres técnicos.', 'lab_a.jpg'),
-('Jardín Central', 'Espacio al aire libre para actividades recreativas y networking.', 'jardin.jpg'),
-('Sala de Reuniones B', 'Sala pequeña para mesas redondas y grupos de trabajo.', 'sala_b.jpg');
+INSERT INTO espacio (nombre, descripcion, imagen, capacidad) VALUES 
+('Auditorio Principal', 'Sala magna con capacidad para 500 personas, proyector 4K y sistema de sonido envolvente.', 'auditorio_main.jpg', 500),
+('Laboratorio de Cómputo A', 'Aula equipada con 30 ordenadores de alto rendimiento para talleres técnicos.', 'lab_a.jpg', 30),
+('Jardín Central', 'Espacio al aire libre para actividades recreativas y networking.', 'jardin.jpg', 150),
+('Sala de Reuniones B', 'Sala pequeña para mesas redondas y grupos de trabajo.', 'sala_b.jpg', 20);
 
 -- 2. Insertar Categorías
 INSERT INTO categoria (nombre, color) VALUES 

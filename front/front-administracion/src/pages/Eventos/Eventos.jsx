@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import { API_URL } from "../../config";
 
 export default function Eventos() {
@@ -27,20 +28,49 @@ export default function Eventos() {
   }, []);
 
   const handleDelete = async (id) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este evento?")) {
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar"
+    });
+
+    if (result.isConfirmed) {
       try {
+        const token = localStorage.getItem("token");
         const response = await fetch(`${API_URL}/evento/${id}`, {
           method: "DELETE",
           credentials: "include",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
         });
 
         if (!response.ok) {
+          if (response.status === 403) {
+            throw new Error("No tienes permisos para eliminar eventos. Debes ser administrador.");
+          }
           throw new Error("Error al eliminar el evento");
         }
 
+        await Swal.fire({
+          icon: "success",
+          title: "¡Eliminado!",
+          text: "El evento ha sido eliminado",
+          confirmButtonText: "Aceptar"
+        });
         fetchEventos(); // Recargar eventos
       } catch (error) {
-        setError(error.message);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.message.includes("permisos") ? error.message : "Error al eliminar el evento",
+          confirmButtonText: "Aceptar"
+        });
       }
     }
   };

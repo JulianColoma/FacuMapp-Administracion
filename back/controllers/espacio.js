@@ -26,6 +26,7 @@ export class EspacioController {
     try {
       const { id } = req.params;
       const espacio = await EspacioModel.getById(id);
+      if (!espacio) return res.status(404).json({ error: 'Espacio no encontrado' });
       res.json(espacio);
     } catch (error) {
       console.error(error);
@@ -42,12 +43,16 @@ export class EspacioController {
     try {
       const validated_input = EspacioSchema.parse(req.body);
       if (req.file) {
-        validated_input.imagen = `/uploads/${req.file.filename}`;
+        validated_input.imagen = req.file.filename;
       }
       await EspacioModel.postEspacio(validated_input);
       res.status(201).json({ ok: true });
     } catch (error) {
       console.error(error);
+      if (error.name === 'ZodError') {
+        const errorMessage = error.errors[0]?.message || 'Error de validación';
+        return res.status(400).json({ error: errorMessage });
+      }
       res.status(400).json({ error: error.message });
     }
   };
@@ -89,11 +94,7 @@ export class EspacioController {
       if (req.file) {
         const espacioActual = await EspacioModel.getById(id);
         if (espacioActual && espacioActual.imagen) {
-          const oldPath = path.join(
-            __dirname,
-            "../uploads",
-            espacioActual.imagen
-          );
+          const oldPath = path.join(__dirname, "../uploads", espacioActual.imagen);
           if (fs.existsSync(oldPath)) {
             fs.unlinkSync(oldPath);
           }
@@ -102,13 +103,17 @@ export class EspacioController {
       } else {
         // Si no se sube una nueva imagen, mantenemos la anterior
         const espacioActual = await EspacioModel.getById(id);
-        validated_input.imagen = espacioActual.imagen;
+        validated_input.imagen = espacioActual?.imagen ?? null;
       }
 
       await EspacioModel.updateEspacio(id, validated_input);
       res.status(200).json({ ok: true });
     } catch (error) {
       console.error(error);
+      if (error.name === 'ZodError') {
+        const errorMessage = error.errors[0]?.message || 'Error de validación';
+        return res.status(400).json({ error: errorMessage });
+      }
       res.status(400).json({ error: error.message });
     }
   };

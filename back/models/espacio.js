@@ -12,13 +12,13 @@ export class EspacioModel {
     return espacio[0];
   };
   static postEspacio = async (input) => {
-    const { nombre, descripcion, imagen, capacidad } = await input;
+    const { nombre, descripcion, imagen = null, capacidad } = await input;
 
     await query(
       `INSERT INTO espacio (nombre,
     descripcion, imagen, capacidad)
          VALUES (?, ?, ?, ?);`,
-      [nombre, descripcion, imagen, capacidad]
+      [nombre, descripcion, imagen ?? null, capacidad]
     );
     return true;
   };
@@ -31,10 +31,12 @@ export class EspacioModel {
   };
   static updateEspacio = async (id, input) => {
     const espacio = await this.getById(id);
+    if (!espacio) throw new Error('Espacio no encontrado');
     const newEspacio = {
-      ...espacio[0],
+      ...espacio,
       ...input,
     };
+    const imagenValue = newEspacio.imagen ?? null;
 
     await query(
       `UPDATE espacio
@@ -43,7 +45,7 @@ export class EspacioModel {
          imagen=?,
          capacidad=?
      WHERE id = ?;`,
-      [newEspacio.nombre, newEspacio.descripcion, newEspacio.imagen, newEspacio.capacidad, id]
+      [newEspacio.nombre, newEspacio.descripcion, imagenValue, newEspacio.capacidad, id]
     );
   };
   static addCategorias = async (id, input) => {

@@ -14,23 +14,12 @@ export class EventoModel {
   };
 
   static postEvento = async (input) => {
-    const {
-      nombre,
-    descripcion,
-    fecha_inicio,
-    fecha_fin
-    } = await input;
+    const { nombre, descripcion, fecha_inicio, fecha_fin } = input;
 
     await query(
-      `INSERT INTO evento (nombre,
-    descripcion,
-    fecha_inicio,
-    fecha_fin)
-         VALUES (?, ?, ?, ?, ?, ?, ?);`,
-      [nombre,
-    descripcion,
-    fecha_inicio,
-    fecha_fin]
+      `INSERT INTO evento (nombre, descripcion, fecha_inicio, fecha_fin)
+       VALUES (?, ?, ?, ?);`,
+      [nombre, descripcion, fecha_inicio, fecha_fin]
     );
     return true;
   };
@@ -43,9 +32,9 @@ export class EventoModel {
     }
   };
   static updateEvento = async (id, input) => {
-    const  evento  = await this.getById(id);
+    const evento = await this.getById(id);
     const newEvento = {
-      ...evento[0],
+      ...evento,
       ...input,
     };
 

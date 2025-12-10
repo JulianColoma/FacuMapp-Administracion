@@ -17,6 +17,7 @@ export class ActividadController {
         try{
         const { id } = req.params
         const actividad = await ActividadModel.getById(id)
+        if(!actividad) return res.status(404).json({ error: 'Actividad no encontrada' })
         res.json(actividad)
         } catch (error) {
             console.error(error);
@@ -34,6 +35,10 @@ export class ActividadController {
             res.status(201).json({"ok": true}); 
         } catch (error) {
             console.error(error);
+            if (error.name === 'ZodError') {
+                const errorMessage = error.errors[0]?.message || 'Error de validación';
+                return res.status(400).json({ error: errorMessage });
+            }
             res.status(400).json({ error: error.message });
         }
     }
@@ -63,6 +68,10 @@ export class ActividadController {
         res.status(200).json({"ok": true})
         } catch (error) {
             console.error(error);
+            if (error.name === 'ZodError') {
+                const errorMessage = error.errors[0]?.message || 'Error de validación';
+                return res.status(400).json({ error: errorMessage });
+            }
             res.status(400).json({ error: error.message });
         }
     }

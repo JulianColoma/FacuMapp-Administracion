@@ -7,11 +7,11 @@ export class ActividadModel {
   };
 
   static getById = async (id) => {
-    const actividad  = await query(
+    const actividad = await query(
       "SELECT * FROM actividad WHERE id = ?",
       [id]
     );
-    return actividad;
+    return actividad[0] ?? null;
   };
 
   static postActividad = async (input) => {
@@ -48,9 +48,12 @@ export class ActividadModel {
   };
 
   static updateActividad = async (id, input) => { 
-    const  actividad = await this.getById(id);
+    const actividad = await this.getById(id);
+    if (!actividad) {
+      throw new Error('Actividad no encontrada');
+    }
     const newActividad = {
-      ...actividad[0],
+      ...actividad,
       ...input,
     };
 

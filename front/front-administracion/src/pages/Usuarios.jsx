@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import { API_URL } from "../config";
 
 export default function Usuarios() {
@@ -8,20 +9,50 @@ export default function Usuarios() {
   const [error, setError] = useState(null);
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-      return;
-    }
-    try {
-      const response = await fetch(`${API_URL}/deleteuser/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error("Error al eliminar el usuario");
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar"
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_URL}/deleteuser/${id}`, {
+          method: "DELETE",
+          credentials: "include",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+
+        if (!response.ok) {
+          if (response.status === 403) {
+            throw new Error("No tienes permisos para eliminar usuarios. Debes ser administrador.");
+          }
+          throw new Error("Error al eliminar el usuario");
+        }
+
+        await Swal.fire({
+          icon: "success",
+          title: "¡Eliminado!",
+          text: "El usuario ha sido eliminado",
+          confirmButtonText: "Aceptar"
+        });
+        setUsuarios(usuarios.filter((u) => u.id !== id));
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.message.includes("permisos") ? error.message : "Error al eliminar el usuario",
+          confirmButtonText: "Aceptar"
+        });
       }
-      setUsuarios(usuarios.filter((u) => u.id !== id));
-    } catch (error) {
-      alert("No se pudo eliminar el usuario: " + error.message);
     }
   };
   useEffect(() => {
