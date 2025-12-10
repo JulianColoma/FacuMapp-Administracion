@@ -10,10 +10,7 @@ export const actividadSchema = z.object({
         .trim()
         .min(1, "La descripción es obligatoria"), 
         
-    fecha: z.coerce.date({ required_error: "La fecha es obligatoria" }) 
-        .refine((d) => d >= new Date(new Date().setHours(0,0,0,0)), {
-             message: "La fecha no puede ser anterior a hoy",
-        }),
+    fecha: z.coerce.date({ required_error: "La fecha es obligatoria" }),
         
     hora_inicio: z.string().time("La hora de inicio debe ser una hora válida"),
     

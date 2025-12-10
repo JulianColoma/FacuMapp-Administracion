@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../config";
+import "../style.scss";
 
 export default function Login() {
   const [nombre, setNombre] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -32,6 +34,8 @@ export default function Login() {
       setErrors(newErrors);
       return;
     }
+
+    setLoading(true);
 
     try {
       const response = await fetch(`${API_URL}/login`, {
@@ -59,46 +63,103 @@ export default function Login() {
     } catch (error) {
       setGeneralError(error.message === "Invalid credentials" ? "Usuario o contraseña incorrectos" : error.message);
       console.error("Error al iniciar sesión:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-12 col-md-4">
-          <div className="card p-4 shadow-sm">
-            <h3 className="text-center mb-4">Login</h3>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <input
-                  type="text"
-                  placeholder="Usuario"
-                  className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                />
-                {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
-              </div>
-              <div className="mb-3">
-                <input
-                  type="password"
-                  placeholder="Contraseña"
-                  className={`form-control ${errors.contrasena ? 'is-invalid' : ''}`}
-                  value={contrasena}
-                  onChange={(e) => setContrasena(e.target.value)}
-                />
-                {errors.contrasena && <div className="invalid-feedback">{errors.contrasena}</div>}
-              </div>
-
-              {generalError &&
-                <div className="alert alert-danger p-2 mb-3 fs-6">{generalError}</div>
-              }
-
-              <button type="submit" className="btn btn-primary w-100">
-                Ingresar
-              </button>
-            </form>
+    <div className="login-container">
+      <div className="login-background">
+        <div className="login-shape"></div>
+        <div className="login-shape"></div>
+      </div>
+      
+      <div className="login-card">
+        <div className="login-header">
+          <div className="login-logo">
+            <i className="bi bi-geo-alt-fill"></i>
           </div>
+          <h1 className="login-title">FacuMapp Admin</h1>
+          <p className="login-subtitle">Sistema de Gestión de Espacios y Eventos</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <label htmlFor="nombre" className="form-label">
+              <i className="bi bi-person me-2"></i>
+              Usuario
+            </label>
+            <input
+              id="nombre"
+              type="text"
+              placeholder="Ingrese su usuario"
+              className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              disabled={loading}
+            />
+            {errors.nombre && (
+              <div className="invalid-feedback d-block">
+                <i className="bi bi-exclamation-circle me-1"></i>
+                {errors.nombre}
+              </div>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="contrasena" className="form-label">
+              <i className="bi bi-lock me-2"></i>
+              Contraseña
+            </label>
+            <input
+              id="contrasena"
+              type="password"
+              placeholder="Ingrese su contraseña"
+              className={`form-control ${errors.contrasena ? 'is-invalid' : ''}`}
+              value={contrasena}
+              onChange={(e) => setContrasena(e.target.value)}
+              disabled={loading}
+            />
+            {errors.contrasena && (
+              <div className="invalid-feedback d-block">
+                <i className="bi bi-exclamation-circle me-1"></i>
+                {errors.contrasena}
+              </div>
+            )}
+          </div>
+
+          {generalError && (
+            <div className="alert alert-danger d-flex align-items-center">
+              <i className="bi bi-exclamation-triangle-fill me-2"></i>
+              {generalError}
+            </div>
+          )}
+
+          <button 
+            type="submit" 
+            className="btn btn-primary w-100 login-btn"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Ingresando...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-box-arrow-in-right me-2"></i>
+                Iniciar Sesión
+              </>
+            )}
+          </button>
+        </form>
+
+        <div className="login-footer">
+          <p className="text-muted mb-0">
+            <i className="bi bi-shield-check me-1"></i>
+            Acceso seguro y encriptado
+          </p>
         </div>
       </div>
     </div>

@@ -18,7 +18,9 @@ CREATE TABLE IF NOT EXISTS evento (
     nombre VARCHAR(255) NOT NULL,
     descripcion TEXT,
     fecha_inicio DATETIME NOT NULL,
-    fecha_fin DATETIME NOT NULL
+    fecha_fin DATETIME NOT NULL,
+    id_espacio INT,
+    FOREIGN KEY (id_espacio) REFERENCES espacio(id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS actividad (

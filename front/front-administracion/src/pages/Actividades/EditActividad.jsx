@@ -5,9 +5,6 @@ import { API_URL } from "../../config";
 
 export default function EditActividad() {
   const { id: eventoId, actividadId } = useParams();
-  const todayIso = new Date();
-  todayIso.setHours(0, 0, 0, 0);
-  const todayStr = todayIso.toISOString().split("T")[0];
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [fecha, setFecha] = useState("");
@@ -15,6 +12,7 @@ export default function EditActividad() {
   const [horaFin, setHoraFin] = useState("");
   const [idEspacio, setIdEspacio] = useState("");
   const [espacios, setEspacios] = useState([]);
+  const [evento, setEvento] = useState(null);
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,10 +35,9 @@ export default function EditActividad() {
           throw new Error("Error al obtener la actividad");
         }
         const data = await response.json();
-        const safeFecha = data.fecha ? new Date(data.fecha) : null;
         setNombre(data.nombre || "");
         setDescripcion(data.descripcion || "");
-        setFecha(safeFecha && !Number.isNaN(safeFecha.getTime()) ? safeFecha.toISOString().split("T")[0] : "");
+        setFecha(data.fecha || "");
         setHoraInicio(data.hora_inicio || "");
         setHoraFin(data.hora_fin || "");
         setIdEspacio(data.id_espacio ? String(data.id_espacio) : "");
@@ -71,8 +68,25 @@ export default function EditActividad() {
       }
     };
 
+    const loadEvento = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const resp = await fetch(`${API_URL}/evento/${eventoId}`, {
+          credentials: "include",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        const data = await resp.json();
+        setEvento(data);
+      } catch (e) {
+        console.error("Error cargando evento", e);
+      }
+    };
+
     loadEspacios();
-  }, []);
+    loadEvento();
+  }, [eventoId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,8 +110,13 @@ export default function EditActividad() {
 
     if (!fecha) {
       newErrors.fecha = "La fecha es obligatoria";
-    } else if (fecha < todayStr) {
-      newErrors.fecha = "La fecha no puede ser anterior a hoy";
+    } else if (evento) {
+      // Validar que la fecha esté dentro del rango del evento
+      if (fecha < evento.fecha_inicio) {
+        newErrors.fecha = "La fecha de la actividad no puede ser anterior a la fecha de inicio del evento";
+      } else if (fecha > evento.fecha_fin) {
+        newErrors.fecha = "La fecha de la actividad no puede ser posterior a la fecha de fin del evento";
+      }
     }
 
     if (!horaInicio) {
@@ -162,7 +181,7 @@ export default function EditActividad() {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Error al actualizar la actividad",
+        text: error.message || "Error al actualizar la actividad",
         confirmButtonText: "Aceptar"
       });
     }

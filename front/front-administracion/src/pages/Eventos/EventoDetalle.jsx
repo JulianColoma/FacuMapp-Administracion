@@ -118,7 +118,7 @@ export default function EventoDetalle() {
                   <p className="card-text">{act.descripcion}</p>
                   <p className="card-text">
                     <small className="text-muted">
-                      {new Date(act.fecha).toLocaleDateString()}
+                      {act.fecha.split('-').reverse().join('/')}
                     </small>
                   </p>
                   <p className="card-text">

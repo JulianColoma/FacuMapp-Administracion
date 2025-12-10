@@ -12,6 +12,7 @@ export const EventoSchema = z.object({
       .min(1, "La descripción es obligatoria"),
     fecha_inicio: z.coerce.date({ required_error: "La fecha de inicio es obligatoria" }),
     fecha_fin: z.coerce.date({ required_error: "La fecha de fin es obligatoria" }),
+    id_espacio: z.number().int().positive("El espacio debe ser válido").optional(),
   })
   .refine((data) => data.fecha_fin >= data.fecha_inicio, {
     message: "La fecha de fin no puede ser anterior a la fecha de inicio",

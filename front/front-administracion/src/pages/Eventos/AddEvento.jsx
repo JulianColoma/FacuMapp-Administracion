@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { API_URL } from "../../config";
@@ -8,9 +8,27 @@ export default function AddEvento() {
   const [descripcion, setDescripcion] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
+  const [idEspacio, setIdEspacio] = useState("");
+  const [espacios, setEspacios] = useState([]);
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchEspacios = async () => {
+      try {
+        const response = await fetch(`${API_URL}/espacio`);
+        if (!response.ok) {
+          throw new Error("Error al obtener espacios");
+        }
+        const data = await response.json();
+        setEspacios(data);
+      } catch (error) {
+        console.error("Error al cargar espacios:", error);
+      }
+    };
+    fetchEspacios();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,6 +79,7 @@ export default function AddEvento() {
           descripcion: cleanDescripcion,
           fecha_inicio: fechaInicio,
           fecha_fin: fechaFin,
+          id_espacio: idEspacio ? parseInt(idEspacio) : undefined,
         }),
         credentials: "include",
       });
@@ -91,70 +110,130 @@ export default function AddEvento() {
   };
 
   return (
-    <div className="container-fluid px-4 mt-5">
-      <h1 className="mb-4 display-6 fw-bold">Agregar Evento</h1>
-      {generalError && <div className="alert alert-danger">{generalError}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="nombre" className="form-label">
-            Nombre
-          </label>
-          <input
-            type="text"
-            className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
-            id="nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-          />
-          {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+    <div className="page-container">
+      <div className="page-header">
+        <div>
+          <h1>
+            <i className="bi bi-calendar-event me-2"></i>
+            Agregar Evento
+          </h1>
+          <p className="text-muted mb-0">Complete el formulario para crear un nuevo evento</p>
         </div>
-        <div className="mb-3">
-          <label htmlFor="descripcion" className="form-label">
-            Descripción
-          </label>
-          <textarea
-            className={`form-control ${errors.descripcion ? 'is-invalid' : ''}`}
-            id="descripcion"
-            rows="3"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-          ></textarea>
-          {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="fechaInicio" className="form-label">
-            Fecha de Inicio
-          </label>
-          <input
-            type="date"
-            className={`form-control ${errors.fechaInicio ? 'is-invalid' : ''}`}
-            id="fechaInicio"
-            value={fechaInicio}
-            onChange={(e) => setFechaInicio(e.target.value)}
-            onInvalid={(e) => e.target.setCustomValidity(' ')}
-            onInput={(e) => e.target.setCustomValidity('')}
-          />
-          {errors.fechaInicio && <div className="invalid-feedback">{errors.fechaInicio}</div>}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="fechaFin" className="form-label">
-            Fecha de Fin
-          </label>
-          <input
-            type="date"
-            className={`form-control ${errors.fechaFin ? 'is-invalid' : ''}`}
-            id="fechaFin"
-            value={fechaFin}
-            onChange={(e) => setFechaFin(e.target.value)}
-            onInvalid={(e) => e.target.setCustomValidity(' ')}
-            onInput={(e) => e.target.setCustomValidity('')}
-          />
-          {errors.fechaFin && <div className="invalid-feedback">{errors.fechaFin}</div>}
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Crear Evento
-        </button>
-      </form>
+      </div>
+
+      <div className="custom-card">
+        {generalError && (
+          <div className="alert alert-danger d-flex align-items-center mb-4">
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            {generalError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label htmlFor="nombre" className="form-label">
+              <i className="bi bi-calendar-event me-2"></i>
+              Nombre del Evento
+            </label>
+            <input
+              type="text"
+              className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
+              id="nombre"
+              placeholder="Ej: Semana de la Innovación"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+            />
+            {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor="descripcion" className="form-label">
+              <i className="bi bi-text-paragraph me-2"></i>
+              Descripción
+            </label>
+            <textarea
+              className={`form-control ${errors.descripcion ? 'is-invalid' : ''}`}
+              id="descripcion"
+              rows="4"
+              placeholder="Describe el evento..."
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+            ></textarea>
+            {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
+          </div>
+
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label htmlFor="fechaInicio" className="form-label">
+                <i className="bi bi-calendar-check me-2"></i>
+                Fecha de Inicio
+              </label>
+              <input
+                type="date"
+                className={`form-control ${errors.fechaInicio ? 'is-invalid' : ''}`}
+                id="fechaInicio"
+                value={fechaInicio}
+                onChange={(e) => setFechaInicio(e.target.value)}
+                onInvalid={(e) => e.target.setCustomValidity(' ')}
+                onInput={(e) => e.target.setCustomValidity('')}
+              />
+              {errors.fechaInicio && <div className="invalid-feedback">{errors.fechaInicio}</div>}
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label htmlFor="fechaFin" className="form-label">
+                <i className="bi bi-calendar-x me-2"></i>
+                Fecha de Fin
+              </label>
+              <input
+                type="date"
+                className={`form-control ${errors.fechaFin ? 'is-invalid' : ''}`}
+                id="fechaFin"
+                value={fechaFin}
+                onChange={(e) => setFechaFin(e.target.value)}
+                onInvalid={(e) => e.target.setCustomValidity(' ')}
+                onInput={(e) => e.target.setCustomValidity('')}
+              />
+              {errors.fechaFin && <div className="invalid-feedback">{errors.fechaFin}</div>}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="espacio" className="form-label">
+              <i className="bi bi-geo-alt me-2"></i>
+              Espacio (Opcional)
+            </label>
+            <select
+              className="form-control"
+              id="espacio"
+              value={idEspacio}
+              onChange={(e) => setIdEspacio(e.target.value)}
+            >
+              <option value="">-- Seleccionar un espacio --</option>
+              {espacios.map((espacio) => (
+                <option key={espacio.id} value={espacio.id}>
+                  {espacio.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="d-flex gap-2 justify-content-end">
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => navigate('/eventos')}
+            >
+              <i className="bi bi-x-circle me-2"></i>
+              Cancelar
+            </button>
+            <button type="submit" className="btn btn-success">
+              <i className="bi bi-check-circle me-2"></i>
+              Crear Evento
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

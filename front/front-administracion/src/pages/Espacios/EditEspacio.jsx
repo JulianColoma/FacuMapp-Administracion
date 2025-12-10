@@ -124,76 +124,126 @@ export default function EditEspacio() {
   }
 
   if (generalError && !nombre) {
-    return <div>Error: {generalError}</div>;
+    return (
+      <div className="page-container">
+        <div className="alert alert-danger d-flex align-items-center">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          Error: {generalError}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container-fluid px-4 mt-5">
-      <h1 className="mb-4 display-6 fw-bold">Editar Espacio</h1>
-      {generalError && <div className="alert alert-danger">{generalError}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="nombre" className="form-label">
-            Nombre
-          </label>
-          <input
-            type="text"
-            className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
-            id="nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-          />
-          {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+    <div className="page-container">
+      <div className="page-header">
+        <div>
+          <h1>
+            <i className="bi bi-pencil-square me-2"></i>
+            Editar Espacio
+          </h1>
+          <p className="text-muted mb-0">Modifique los campos que desee actualizar</p>
         </div>
-        <div className="mb-3">
-          <label htmlFor="descripcion" className="form-label">
-            Descripción
-          </label>
-          <textarea
-            className={`form-control ${errors.descripcion ? 'is-invalid' : ''}`}
-            id="descripcion"
-            rows="3"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-          ></textarea>
-          {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="capacidad" className="form-label">
-            Capacidad
-          </label>
-          <input
-            type="number"
-            className={`form-control ${errors.capacidad ? 'is-invalid' : ''}`}
-            id="capacidad"
-            value={capacidad}
-            onChange={(e) => setCapacidad(e.target.value)}
-          />
-          {errors.capacidad && <div className="invalid-feedback">{errors.capacidad}</div>}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="imagen" className="form-label">
-            Imagen (opcional)
-          </label>
-          {currentImagen && (
-            <img
-              src={`${API_URL}/uploads/${currentImagen}`}
-              alt="Imagen actual"
-              className="img-thumbnail mb-2"
-              style={{ maxHeight: "150px" }}
+      </div>
+
+      <div className="custom-card">
+        {generalError && (
+          <div className="alert alert-danger d-flex align-items-center mb-4">
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            {generalError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label htmlFor="nombre" className="form-label">
+                <i className="bi bi-building me-2"></i>
+                Nombre del Espacio
+              </label>
+              <input
+                type="text"
+                className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
+                id="nombre"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+              />
+              {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label htmlFor="capacidad" className="form-label">
+                <i className="bi bi-people me-2"></i>
+                Capacidad
+              </label>
+              <input
+                type="number"
+                className={`form-control ${errors.capacidad ? 'is-invalid' : ''}`}
+                id="capacidad"
+                value={capacidad}
+                onChange={(e) => setCapacidad(e.target.value)}
+              />
+              {errors.capacidad && <div className="invalid-feedback">{errors.capacidad}</div>}
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor="descripcion" className="form-label">
+              <i className="bi bi-text-paragraph me-2"></i>
+              Descripción
+            </label>
+            <textarea
+              className={`form-control ${errors.descripcion ? 'is-invalid' : ''}`}
+              id="descripcion"
+              rows="4"
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+            ></textarea>
+            {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="imagen" className="form-label">
+              <i className="bi bi-image me-2"></i>
+              Imagen
+            </label>
+            {currentImagen && (
+              <div className="mb-3">
+                <p className="text-muted mb-2">Imagen actual:</p>
+                <img
+                  src={`${API_URL}/uploads/${currentImagen}`}
+                  alt="Imagen actual"
+                  className="img-thumbnail"
+                  style={{ maxHeight: "200px", maxWidth: "100%" }}
+                />
+              </div>
+            )}
+            <input
+              type="file"
+              className="form-control"
+              id="imagen"
+              accept="image/*"
+              onChange={(e) => setImagen(e.target.files[0])}
             />
-          )}
-          <input
-            type="file"
-            className="form-control"
-            id="imagen"
-            onChange={(e) => setImagen(e.target.files[0])}
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Guardar Cambios
-        </button>
-      </form>
+            <small className="text-muted">Seleccione una nueva imagen solo si desea cambiarla</small>
+          </div>
+
+          <div className="d-flex gap-2 justify-content-end">
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => navigate('/espacios')}
+            >
+              <i className="bi bi-x-circle me-2"></i>
+              Cancelar
+            </button>
+            <button type="submit" className="btn btn-success">
+              <i className="bi bi-check-circle me-2"></i>
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

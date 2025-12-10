@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from "../../config";
 
@@ -9,11 +9,30 @@ export default function AddActividad() {
   const [fecha, setFecha] = useState("");
   const [horaInicio, setHoraInicio] = useState("");
   const [horaFin, setHoraFin] = useState("");
+  const [idEspacio, setIdEspacio] = useState("");
+  const [espacios, setEspacios] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchEspacios = async () => {
+      try {
+        const response = await fetch(`${API_URL}/espacio`, {
+          credentials: "include",
+        });
+        const data = await response.json();
+        setEspacios(data);
+      } catch (error) {
+        console.error("Error al cargar espacios:", error);
+      }
+    };
+
+    fetchEspacios();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
 
     try {
       const response = await fetch(`${API_URL}/actividad`, {
@@ -27,13 +46,15 @@ export default function AddActividad() {
           fecha,
           hora_inicio: horaInicio,
           hora_fin: horaFin,
-          id_evento: id,
+          id_espacio: parseInt(idEspacio),
+          id_evento: parseInt(id),
         }),
         credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error("Error al crear la actividad");
+        const data = await response.json();
+        throw new Error(data.error || "Error al crear la actividad");
       }
 
       navigate(`/eventos/${id}`);
@@ -72,7 +93,6 @@ export default function AddActividad() {
             onChange={(e) => setDescripcion(e.target.value)}
             required
           ></textarea>
-        </div>
         <div className="mb-3">
           <label htmlFor="fecha" className="form-label">
             Fecha
@@ -86,6 +106,26 @@ export default function AddActividad() {
             required
           />
         </div>
+        <div className="mb-3">
+          <label htmlFor="espacio" className="form-label">
+            Espacio
+          </label>
+          <select
+            className="form-select"
+            id="espacio"
+            value={idEspacio}
+            onChange={(e) => setIdEspacio(e.target.value)}
+            required
+          >
+            <option value="">Seleccione un espacio</option>
+            {espacios.map((espacio) => (
+              <option key={espacio.id} value={espacio.id}>
+                {espacio.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="row">
         <div className="row">
           <div className="col-md-6 mb-3">
             <label htmlFor="horaInicio" className="form-label">

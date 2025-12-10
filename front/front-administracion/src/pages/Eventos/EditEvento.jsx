@@ -9,6 +9,8 @@ export default function EditEvento() {
   const [descripcion, setDescripcion] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");
+  const [idEspacio, setIdEspacio] = useState("");
+  const [espacios, setEspacios] = useState([]);
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,8 +26,9 @@ export default function EditEvento() {
         const data = await response.json();
         setNombre(data.nombre);
         setDescripcion(data.descripcion);
-        setFechaInicio(new Date(data.fecha_inicio).toISOString().split("T")[0]);
-        setFechaFin(new Date(data.fecha_fin).toISOString().split("T")[0]);
+        setFechaInicio(data.fecha_inicio || "");
+        setFechaFin(data.fecha_fin || "");
+        setIdEspacio(data.id_espacio || "");
       } catch (error) {
         setGeneralError(error.message);
       } finally {
@@ -33,7 +36,21 @@ export default function EditEvento() {
       }
     };
 
+    const fetchEspacios = async () => {
+      try {
+        const response = await fetch(`${API_URL}/espacio`);
+        if (!response.ok) {
+          throw new Error("Error al obtener espacios");
+        }
+        const data = await response.json();
+        setEspacios(data);
+      } catch (error) {
+        console.error("Error al cargar espacios:", error);
+      }
+    };
+
     fetchEvento();
+    fetchEspacios();
   }, [id]);
 
   const handleSubmit = async (e) => {
@@ -84,6 +101,7 @@ export default function EditEvento() {
           descripcion: cleanDescripcion,
           fecha_inicio: fechaInicio,
           fecha_fin: fechaFin,
+          id_espacio: idEspacio ? parseInt(idEspacio) : undefined,
         }),
         credentials: "include",
       });
@@ -114,78 +132,152 @@ export default function EditEvento() {
   };
 
   if (loading) {
-    return <div>Cargando...</div>;
+    return (
+      <div className="page-container">
+        <div className="text-center py-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Cargando evento...</span>
+          </div>
+          <p className="text-muted mt-3">Cargando evento...</p>
+        </div>
+      </div>
+    );
   }
 
   if (generalError && !nombre) {
-    return <div>Error: {generalError}</div>;
+    return (
+      <div className="page-container">
+        <div className="alert alert-danger d-flex align-items-center">
+          <i className="bi bi-exclamation-triangle-fill me-2"></i>
+          Error: {generalError}
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container-fluid px-4 mt-5">
-      <h1 className="mb-4 display-6 fw-bold">Editar Evento</h1>
-      {generalError && <div className="alert alert-danger">{generalError}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="nombre" className="form-label">
-            Nombre
-          </label>
-          <input
-            type="text"
-            className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
-            id="nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-          />
-          {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+    <div className="page-container">
+      <div className="page-header">
+        <div>
+          <h1>
+            <i className="bi bi-pencil-square me-2"></i>
+            Editar Evento
+          </h1>
+          <p className="text-muted mb-0">Modifique los campos que desee actualizar</p>
         </div>
-        <div className="mb-3">
-          <label htmlFor="descripcion" className="form-label">
-            Descripción
-          </label>
-          <textarea
-            className={`form-control ${errors.descripcion ? 'is-invalid' : ''}`}
-            id="descripcion"
-            rows="3"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-          ></textarea>
-          {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="fechaInicio" className="form-label">
-            Fecha de Inicio
-          </label>
-          <input
-            type="date"
-            className={`form-control ${errors.fechaInicio ? 'is-invalid' : ''}`}
-            id="fechaInicio"
-            value={fechaInicio}
-            onChange={(e) => setFechaInicio(e.target.value)}
-            onInvalid={(e) => e.target.setCustomValidity(' ')}
-            onInput={(e) => e.target.setCustomValidity('')}
-          />
-          {errors.fechaInicio && <div className="invalid-feedback">{errors.fechaInicio}</div>}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="fechaFin" className="form-label">
-            Fecha de Fin
-          </label>
-          <input
-            type="date"
-            className={`form-control ${errors.fechaFin ? 'is-invalid' : ''}`}
-            id="fechaFin"
-            value={fechaFin}
-            onChange={(e) => setFechaFin(e.target.value)}
-            onInvalid={(e) => e.target.setCustomValidity(' ')}
-            onInput={(e) => e.target.setCustomValidity('')}
-          />
-          {errors.fechaFin && <div className="invalid-feedback">{errors.fechaFin}</div>}
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Guardar Cambios
-        </button>
-      </form>
+      </div>
+
+      <div className="custom-card">
+        {generalError && (
+          <div className="alert alert-danger d-flex align-items-center mb-4">
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            {generalError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label htmlFor="nombre" className="form-label">
+              <i className="bi bi-calendar-event me-2"></i>
+              Nombre del Evento
+            </label>
+            <input
+              type="text"
+              className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
+              id="nombre"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+            />
+            {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor="descripcion" className="form-label">
+              <i className="bi bi-text-paragraph me-2"></i>
+              Descripción
+            </label>
+            <textarea
+              className={`form-control ${errors.descripcion ? 'is-invalid' : ''}`}
+              id="descripcion"
+              rows="4"
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+            ></textarea>
+            {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
+          </div>
+
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label htmlFor="fechaInicio" className="form-label">
+                <i className="bi bi-calendar-check me-2"></i>
+                Fecha de Inicio
+              </label>
+              <input
+                type="date"
+                className={`form-control ${errors.fechaInicio ? 'is-invalid' : ''}`}
+                id="fechaInicio"
+                value={fechaInicio}
+                onChange={(e) => setFechaInicio(e.target.value)}
+                onInvalid={(e) => e.target.setCustomValidity(' ')}
+                onInput={(e) => e.target.setCustomValidity('')}
+              />
+              {errors.fechaInicio && <div className="invalid-feedback">{errors.fechaInicio}</div>}
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label htmlFor="fechaFin" className="form-label">
+                <i className="bi bi-calendar-x me-2"></i>
+                Fecha de Fin
+              </label>
+              <input
+                type="date"
+                className={`form-control ${errors.fechaFin ? 'is-invalid' : ''}`}
+                id="fechaFin"
+                value={fechaFin}
+                onChange={(e) => setFechaFin(e.target.value)}
+                onInvalid={(e) => e.target.setCustomValidity(' ')}
+                onInput={(e) => e.target.setCustomValidity('')}
+              />
+              {errors.fechaFin && <div className="invalid-feedback">{errors.fechaFin}</div>}
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="espacio" className="form-label">
+              <i className="bi bi-geo-alt me-2"></i>
+              Espacio (Opcional)
+            </label>
+            <select
+              className="form-control"
+              id="espacio"
+              value={idEspacio}
+              onChange={(e) => setIdEspacio(e.target.value)}
+            >
+              <option value="">-- Seleccionar un espacio --</option>
+              {espacios.map((espacio) => (
+                <option key={espacio.id} value={espacio.id}>
+                  {espacio.nombre}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="d-flex gap-2 justify-content-end">
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => navigate('/eventos')}
+            >
+              <i className="bi bi-x-circle me-2"></i>
+              Cancelar
+            </button>
+            <button type="submit" className="btn btn-success">
+              <i className="bi bi-check-circle me-2"></i>
+              Guardar Cambios
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

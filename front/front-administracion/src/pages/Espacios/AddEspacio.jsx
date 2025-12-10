@@ -89,64 +89,107 @@ export default function AddEspacio() {
   };
 
   return (
-    <div className="container-fluid px-4 mt-5">
-      <h1 className="mb-4 display-6 fw-bold">Agregar Espacio</h1>
-      {generalError && <div className="alert alert-danger">{generalError}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="nombre" className="form-label">
-            Nombre
-          </label>
-          <input
-            type="text"
-            className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
-            id="nombre"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-          />
-          {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+    <div className="page-container">
+      <div className="page-header">
+        <div>
+          <h1>
+            <i className="bi bi-building me-2"></i>
+            Agregar Espacio
+          </h1>
+          <p className="text-muted mb-0">Complete el formulario para crear un nuevo espacio</p>
         </div>
-        <div className="mb-3">
-          <label htmlFor="descripcion" className="form-label">
-            Descripción
-          </label>
-          <textarea
-            className={`form-control ${errors.descripcion ? 'is-invalid' : ''}`}
-            id="descripcion"
-            rows="3"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-          ></textarea>
-          {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="capacidad" className="form-label">
-            Capacidad
-          </label>
-          <input
-            type="number"
-            className={`form-control ${errors.capacidad ? 'is-invalid' : ''}`}
-            id="capacidad"
-            value={capacidad}
-            onChange={(e) => setCapacidad(e.target.value)}
-          />
-          {errors.capacidad && <div className="invalid-feedback">{errors.capacidad}</div>}
-        </div>
-        <div className="mb-3">
-          <label htmlFor="imagen" className="form-label">
-            Imagen (opcional)
-          </label>
-          <input
-            type="file"
-            className="form-control"
-            id="imagen"
-            onChange={(e) => setImagen(e.target.files[0])}
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Crear Espacio
-        </button>
-      </form>
+      </div>
+
+      <div className="custom-card">
+        {generalError && (
+          <div className="alert alert-danger d-flex align-items-center mb-4">
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            {generalError}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <label htmlFor="nombre" className="form-label">
+                <i className="bi bi-building me-2"></i>
+                Nombre del Espacio
+              </label>
+              <input
+                type="text"
+                className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
+                id="nombre"
+                placeholder="Ej: Aula Magna"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+              />
+              {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <label htmlFor="capacidad" className="form-label">
+                <i className="bi bi-people me-2"></i>
+                Capacidad
+              </label>
+              <input
+                type="number"
+                className={`form-control ${errors.capacidad ? 'is-invalid' : ''}`}
+                id="capacidad"
+                placeholder="Número de personas"
+                value={capacidad}
+                onChange={(e) => setCapacidad(e.target.value)}
+              />
+              {errors.capacidad && <div className="invalid-feedback">{errors.capacidad}</div>}
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <label htmlFor="descripcion" className="form-label">
+              <i className="bi bi-text-paragraph me-2"></i>
+              Descripción
+            </label>
+            <textarea
+              className={`form-control ${errors.descripcion ? 'is-invalid' : ''}`}
+              id="descripcion"
+              rows="4"
+              placeholder="Describe el espacio..."
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+            ></textarea>
+            {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="imagen" className="form-label">
+              <i className="bi bi-image me-2"></i>
+              Imagen (opcional)
+            </label>
+            <input
+              type="file"
+              className="form-control"
+              id="imagen"
+              accept="image/*"
+              onChange={(e) => setImagen(e.target.files[0])}
+            />
+            <small className="text-muted">Formatos aceptados: JPG, PNG, GIF</small>
+          </div>
+
+          <div className="d-flex gap-2 justify-content-end">
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={() => navigate('/espacios')}
+            >
+              <i className="bi bi-x-circle me-2"></i>
+              Cancelar
+            </button>
+            <button type="submit" className="btn btn-success">
+              <i className="bi bi-check-circle me-2"></i>
+              Crear Espacio
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
