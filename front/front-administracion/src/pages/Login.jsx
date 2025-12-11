@@ -78,7 +78,7 @@ export default function Login() {
       <div className="login-card">
         <div className="login-header">
           <div className="login-logo">
-            <i className="bi bi-geo-alt-fill"></i>
+            <img src="/images/UTN_logo.jpg" alt="Logo UTN" />
           </div>
           <h1 className="login-title">FacuMapp Admin</h1>
           <p className="login-subtitle">Sistema de Gestión de Espacios y Eventos</p>

@@ -40,7 +40,7 @@ const AppContent = () => {
       {!isLoginPage && (
         <>
           {/* Navbar para móvil */}
-          <nav className="navbar navbar-dark bg-primary d-lg-none">
+          <nav className="navbar navbar-dark d-lg-none" style={{ backgroundColor: '#1a1d29' }}>
             <div className="container-fluid">
               <button 
                 className="navbar-toggler" 

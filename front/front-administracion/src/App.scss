@@ -39,6 +39,8 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background-color: #f5f7fa;
   color: $dark-color;
+  font-size: 16px; // un poco más grande para mejorar legibilidad
+  line-height: 1.55;
 }
 
 // App Container
@@ -198,19 +200,19 @@ body {
   margin-bottom: 2rem;
 
   h1 {
-    font-size: 1.75rem;
+    font-size: 1.9rem;
     font-weight: 700;
     color: $dark-color;
     margin-bottom: 0.5rem;
 
     @media (min-width: 768px) {
-      font-size: 2rem;
+      font-size: 2.15rem;
     }
   }
 
   .page-subtitle {
     color: $secondary-color;
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
 
   .page-actions {
@@ -260,12 +262,12 @@ body {
 
 // Buttons
 .btn-custom {
-  padding: 0.625rem 1.25rem;
-  font-weight: 500;
-  border-radius: 8px;
+  padding: 0.7rem 1.35rem;
+  font-weight: 600;
+  border-radius: 10px;
   @include transition;
   border: none;
-  font-size: 0.9rem;
+  font-size: 1rem;
 
   &:focus {
     box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
@@ -326,12 +328,12 @@ body {
     color: white;
 
     th {
-      font-weight: 600;
-      padding: 1rem;
+      font-weight: 700;
+      padding: 1.05rem;
       border: none;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
     }
   }
 
@@ -344,9 +346,10 @@ body {
       }
 
       td {
-        padding: 1rem;
+        padding: 1.05rem;
         vertical-align: middle;
         border-bottom: 1px solid #f0f0f0;
+        font-size: 1rem;
       }
 
       &:last-child td {
@@ -558,16 +561,19 @@ body {
   .login-logo {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #ffffff;
     border-radius: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 1.5rem;
-    
-    i {
-      font-size: 2.5rem;
-      color: white;
+    padding: 0.5rem;
+    border: 1px solid #e5e7eb;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
   }
 
