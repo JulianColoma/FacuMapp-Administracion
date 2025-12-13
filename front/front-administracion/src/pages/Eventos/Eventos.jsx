@@ -128,7 +128,7 @@ export default function Eventos() {
           <i className="bi bi-search position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6c757d' }}></i>
           <input
             type="text"
-            className="form-control ps-5"
+            className="form-control"
             placeholder="Buscar eventos por nombre o descripción..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

@@ -1,0 +1,32 @@
+// EspaciosMap.scss
+
+// Variables para configurar fácil
+$hover-color: #ffc107;
+$transition: all 0.2s ease;
+$stroke-color-default: #cccccc;
+
+.interactive-map-svg {
+  max-width: 100%;
+  height: auto;
+  display: block; // Evita espacios fantasma abajo del SVG
+
+  // Nesting: Estilos para las zonas dentro del mapa
+  .map-zone {
+    transition: $transition;
+    cursor: pointer;
+    
+    // Estado Hover usando el "&" parent selector
+    &:hover {
+      fill: $hover-color !important;
+      fill-opacity: 0.8;
+      // Sass permite lógica: oscurecemos el borde un 15% automáticamente
+      stroke: darken($hover-color, 15%) !important; 
+      stroke-width: 3px; // Hacemos el borde un poquito más grueso al pasar el mouse
+    }
+  }
+
+  // Si quieres que las paredes no hagan nada (por seguridad)
+  #paredes {
+    pointer-events: none;
+  }
+}

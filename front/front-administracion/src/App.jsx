@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate 
 import { useState } from "react";
 import Home from "./pages/Home.jsx";
 import Espacios from "./pages/Espacios/Espacios.jsx";
-import AddEspacio from "./pages/Espacios/AddEspacio.jsx";
 import EditEspacio from "./pages/Espacios/EditEspacio.jsx";
 import Eventos from "./pages/Eventos/Eventos.jsx";
 import AddEvento from "./pages/Eventos/AddEvento.jsx";
@@ -92,7 +91,6 @@ const AppContent = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/espacios" element={<Espacios />} />
-          <Route path="/add-espacio" element={<AddEspacio />} />
           <Route path="/edit-espacio/:id" element={<EditEspacio />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/add-evento" element={<AddEvento />} />
