@@ -7,6 +7,7 @@ export const EspacioSchema = z.object({
 
 export const CategoriaSchema = z.object({
   nombre: z.string().min(2, "El título no puede estar vacío").max(255, "El título no puede exceder 255 caracteres"),
+  color: z.string().regex(/^#([0-9A-Fa-f]{6})$/, "El color debe ser un hexadecimal válido (ej: #ff0000)"),
 });
 
 export const CategoriasSchema = z.object({

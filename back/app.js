@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 // Routers
 import { eventoRouter } from './routes/evento.js';
 import { actividadRouter } from './routes/actividad.js';
-import { espacioRouter } from './routes/espacio.js';
+import { espacioRouter, categoriaRouter } from './routes/espacio.js';
 import { userRouter } from './routes/user.js';
 
 // Middleware user
@@ -62,6 +62,7 @@ app.use(userRouter);
 app.use(eventoRouter);
 app.use(actividadRouter);
 app.use(espacioRouter);
+app.use(categoriaRouter);
 
 
 app.listen(PORT, () => {

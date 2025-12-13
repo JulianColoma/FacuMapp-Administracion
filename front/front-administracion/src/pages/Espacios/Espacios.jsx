@@ -131,6 +131,28 @@ export default function Espacios() {
                     <p className="card-text">
                       {esp.descripcion || "Sin descripción disponible."}
                     </p>
+                    {esp.categorias && esp.categorias.length > 0 && (
+                      <div className="mb-2 d-flex flex-wrap gap-2">
+                        {esp.categorias.slice(0, 3).map((cat) => (
+                          <span
+                            key={cat.id}
+                            className="badge"
+                            style={{
+                              backgroundColor: cat.color || '#6c757d',
+                              color: '#fff',
+                              padding: '0.35rem 0.6rem',
+                              borderRadius: '0.5rem',
+                              fontSize: '0.8rem',
+                            }}
+                          >
+                            {cat.nombre}
+                          </span>
+                        ))}
+                        {esp.categorias.length > 3 && (
+                          <span className="badge bg-secondary" style={{ fontSize: '0.8rem' }}>...</span>
+                        )}
+                      </div>
+                    )}
                     <div className="card-capacity">
                       <i className="bi bi-people-fill"></i>
                       Capacidad: {esp.capacidad} personas

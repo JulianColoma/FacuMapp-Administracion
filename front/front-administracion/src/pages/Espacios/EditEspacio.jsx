@@ -10,6 +10,12 @@ export default function EditEspacio() {
   const [capacidad, setCapacidad] = useState("");
   const [imagen, setImagen] = useState(null);
   const [currentImagen, setCurrentImagen] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [initialSelectedCategories, setInitialSelectedCategories] = useState([]);
+  const [newCatNombre, setNewCatNombre] = useState("");
+  const [newCatColor, setNewCatColor] = useState("#000000");
+  const [creatingCategory, setCreatingCategory] = useState(false);
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,6 +39,12 @@ export default function EditEspacio() {
         setDescripcion(data.descripcion || "");
         setCapacidad(data.capacidad ?? "");
         setCurrentImagen(data.imagen);
+        // si el endpoint devuelve categorías asociadas
+        if (data.categorias && Array.isArray(data.categorias)) {
+          const ids = data.categorias.map((c) => c.id);
+          setSelectedCategories(ids);
+          setInitialSelectedCategories(ids);
+        }
       } catch (error) {
         setGeneralError(error.message);
       } finally {
@@ -41,7 +53,119 @@ export default function EditEspacio() {
     };
 
     fetchEspacio();
+    // fetch all categorias disponibles
+    const fetchCategorias = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API_URL}/categoria`, {
+          credentials: "include",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        if (res.ok) {
+          const cats = await res.json();
+          setCategories(cats || []);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    fetchCategorias();
   }, [id]);
+
+  const toggleCategory = (catId) => {
+    setSelectedCategories((prev) =>
+      prev.includes(catId) ? prev.filter((i) => i !== catId) : [...prev, catId]
+    );
+  };
+
+  const handleCreateCategory = async (e) => {
+    e.preventDefault();
+    if (!newCatNombre || newCatNombre.trim().length < 2) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'El nombre de la categoría debe tener al menos 2 caracteres' });
+      return;
+    }
+    setCreatingCategory(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/categoria`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ nombre: newCatNombre, color: newCatColor || undefined }),
+      });
+      if (!res.ok) throw new Error('No se pudo crear la categoría');
+      // refetch categories
+      const token2 = localStorage.getItem('token');
+      const listRes = await fetch(`${API_URL}/categoria`, {
+        credentials: 'include',
+        headers: {
+          ...(token2 ? { Authorization: `Bearer ${token2}` } : {}),
+        },
+      });
+        if (listRes.ok) {
+        const cats = await listRes.json();
+        setCategories(cats || []);
+        // select the newly created category by matching name (best-effort)
+        const match = (cats || []).find((c) => c.nombre === newCatNombre);
+        if (match) setSelectedCategories((prev) => [...prev, match.id]);
+        setNewCatNombre('');
+        setNewCatColor('#000000');
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo crear la categoría' });
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
+
+  const syncCategorias = async () => {
+    const toAdd = selectedCategories.filter((id) => !initialSelectedCategories.includes(id));
+    const toRemove = initialSelectedCategories.filter((id) => !selectedCategories.includes(id));
+    const token = localStorage.getItem('token');
+
+    for (const catId of toAdd) {
+      try {
+        const res = await fetch(`${API_URL}/espaciocat/${id}`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ categoria: catId }),
+        });
+        if (!res.ok) console.error('Error adding categoria', catId);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    for (const catId of toRemove) {
+      try {
+        const res = await fetch(`${API_URL}/espaciocat/${id}`, {
+          method: 'DELETE',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ categoria: catId }),
+        });
+        if (!res.ok) console.error('Error removing categoria', catId);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    // after syncing, update initialSelectedCategories
+    setInitialSelectedCategories([...selectedCategories]);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -101,6 +225,9 @@ export default function EditEspacio() {
         const { error: backendError } = await response.json().catch(() => ({}));
         throw new Error(backendError || "Error al actualizar el espacio");
       }
+
+      // sincronizar categorias asociadas al espacio
+      await syncCategorias();
 
       await Swal.fire({
         icon: "success",
@@ -226,6 +353,43 @@ export default function EditEspacio() {
               onChange={(e) => setImagen(e.target.files[0])}
             />
             <small className="text-muted">Seleccione una nueva imagen solo si desea cambiarla</small>
+          </div>
+
+          <div className="mb-4">
+            <label className="form-label">
+              <i className="bi bi-tags me-2"></i>
+              Categorías
+            </label>
+            <div className="mb-2 d-flex flex-wrap gap-2">
+              {categories.map((cat) => {
+                const isSelected = selectedCategories.includes(cat.id);
+                const bg = cat.color || '#6c757d';
+                return (
+                  <button
+                    type="button"
+                    key={cat.id}
+                    className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-outline-secondary'}`}
+                    onClick={() => toggleCategory(cat.id)}
+                    style={{ backgroundColor: isSelected ? bg : undefined, borderColor: isSelected ? bg : undefined, color: isSelected ? '#fff' : undefined }}
+                  >
+                    {cat.nombre}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="row g-2 align-items-center">
+              <div className="col-auto">
+                <input type="text" className="form-control form-control-sm" placeholder="Nueva categoría" value={newCatNombre} onChange={(e) => setNewCatNombre(e.target.value)} />
+              </div>
+              <div className="col-auto">
+                <input type="color" title="Color" className="form-control form-control-sm p-0" style={{width:40}} value={newCatColor} onChange={(e)=>setNewCatColor(e.target.value)} />
+              </div>
+              <div className="col-auto">
+                <button className="btn btn-sm btn-outline-success" disabled={creatingCategory} type="button" onClick={handleCreateCategory}>Agregar</button>
+              </div>
+            </div>
+            <small className="text-muted d-block mt-2">Seleccione las categorías del espacio o cree una nueva.</small>
           </div>
 
           <div className="d-flex gap-2 justify-content-end">
