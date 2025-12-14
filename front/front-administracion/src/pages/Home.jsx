@@ -33,7 +33,7 @@ export default function Home() {
         // Intentar obtener actividades, pero no fallar si no está disponible
         let actividadesCount = 0;
         try {
-          const actividadesRes = await fetch(`${API_URL}/actividad`);
+          const actividadesRes = await fetch(`${API_URL}/actividadEv`);
           if (actividadesRes.ok) {
             const actividadesData = await actividadesRes.json();
             actividadesCount = actividadesData.length;
@@ -140,10 +140,6 @@ export default function Home() {
                stats.actividades === 1 ? '1 actividad registrada' : 
                `${stats.actividades} actividades registradas`}
             </p>
-            <Link to="/actividades" className="gradient-card-btn">
-              <span>Gestionar</span>
-              <i className="bi bi-arrow-right"></i>
-            </Link>
           </div>
         </div>
       )}

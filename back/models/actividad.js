@@ -10,17 +10,19 @@ export class ActividadModel {
           a.hora_inicio, 
           a.hora_fin, 
           a.id_evento,
-          e.id AS espacio_id,          -- Traemos el ID del espacio
-          e.nombre AS espacio_nombre   -- Traemos el Nombre del espacio (con alias)
+          e.id AS espacio_id,
+          e.nombre AS espacio_nombre
        FROM actividad a
        LEFT JOIN espacio e ON a.id_espacio = e.id`
+
+    const params = []; 
+
     if (id) {
       queryStr += ` WHERE a.id_evento = ?`;
+      params.push(id); 
     }
-    const actividades = await query(
-      queryStr,
-      [id]
-    );
+
+    const actividades = await query(queryStr, params);
     return actividades;
 };
 
