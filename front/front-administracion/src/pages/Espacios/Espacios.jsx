@@ -123,7 +123,7 @@ export default function Espacios() {
         <div className="col-lg-7 mb-4">
           <div className="grid-container">
             {paginatedEspacios.map((esp) => {
-              const imageUrl = esp.imagen ? `${API_URL}/${esp.imagen}` : null;
+              const imageUrl = esp.imagen ? `${API_URL}/uploads/${esp.imagen}` : null;
               return (
                 <div key={esp.id} className="custom-card">
                   <div className="space-card-image">
