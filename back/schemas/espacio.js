@@ -1,7 +1,7 @@
 import { z } from 'zod'
 export const EspacioSchema = z.object({
   nombre: z.string().trim().min(1, "El nombre es obligatorio").max(255, "El nombre no puede exceder 255 caracteres"),
-  descripcion: z.string().trim().min(1, "La descripción es obligatoria"),
+  descripcion: z.string().trim().min(1, "La descripción es obligatoria").max(500, "La descripción no puede exceder 500 caracteres"),
   capacidad: z.coerce.number().positive("La capacidad debe ser mayor a 0").int("La capacidad debe ser un número entero"),
 });
 

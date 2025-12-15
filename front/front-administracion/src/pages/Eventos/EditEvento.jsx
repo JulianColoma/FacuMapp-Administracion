@@ -71,6 +71,8 @@ export default function EditEvento() {
 
     if (!cleanDescripcion || cleanDescripcion.length < 1) {
       newErrors.descripcion = "La descripción es obligatoria";
+    } else if (cleanDescripcion.length > 500) {
+      newErrors.descripcion = "La descripción no puede exceder 500 caracteres";
     }
 
     if (!fechaInicio) {
@@ -125,7 +127,7 @@ export default function EditEvento() {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Error al actualizar el evento",
+        text: error?.message || "Error al actualizar el evento",
         confirmButtonText: "Aceptar"
       });
     }
@@ -199,9 +201,13 @@ export default function EditEvento() {
               id="descripcion"
               rows="4"
               value={descripcion}
+              maxLength={500}
               onChange={(e) => setDescripcion(e.target.value)}
             ></textarea>
             {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
+            {!errors.descripcion && (
+              <div className="form-text">{descripcion.length}/500</div>
+            )}
           </div>
 
           <div className="row">

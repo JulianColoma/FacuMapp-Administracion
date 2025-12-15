@@ -8,7 +8,8 @@ export const actividadSchema = z.object({
         
     descripcion: z.string()
         .trim()
-        .min(1, "La descripción es obligatoria"), 
+        .min(1, "La descripción es obligatoria")
+        .max(500, "La descripción no puede exceder 500 caracteres"), 
         
     fecha: z.coerce.date({ required_error: "La fecha es obligatoria" }),
         

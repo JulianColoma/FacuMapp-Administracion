@@ -9,7 +9,8 @@ export const EventoSchema = z.object({
     descripcion: z
       .string()
       .trim()
-      .min(1, "La descripción es obligatoria"),
+      .min(1, "La descripción es obligatoria")
+      .max(500, "La descripción no puede exceder 500 caracteres"),
     fecha_inicio: z.coerce.date({ required_error: "La fecha de inicio es obligatoria" }),
     fecha_fin: z.coerce.date({ required_error: "La fecha de fin es obligatoria" }),
     id_espacio: z.number().int().positive("El espacio debe ser válido").optional(),

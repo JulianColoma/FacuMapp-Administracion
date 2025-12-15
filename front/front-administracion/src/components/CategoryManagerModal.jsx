@@ -18,6 +18,13 @@ export default function CategoryManagerModal({
   const [editNombre, setEditNombre] = useState('');
   const [editColor, setEditColor] = useState('#000000');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [createAttempted, setCreateAttempted] = useState(false);
+
+  // Validaciones helper
+  const MIN_NAME_LETTERS = 2;
+  const countLetters = (s = '') => (s.match(/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g) || []).length;
+  const hasMinLetters = (s = '', min = MIN_NAME_LETTERS) => countLetters(s.trim()) >= min;
+  const isValidHex = (c = '') => /^#([0-9A-Fa-f]{6})$/.test(c.trim());
 
   // Sincronizar categorías seleccionadas al montar
   useEffect(() => {
@@ -60,14 +67,11 @@ export default function CategoryManagerModal({
 
   const handleCreateCategory = async (e) => {
     e.preventDefault();
-    if (!newCatNombre || newCatNombre.trim().length < 2) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'El nombre de la categoría debe tener al menos 2 caracteres'
-      });
-      return;
-    }
+    const name = (newCatNombre || '').trim();
+    const color = (newCatColor || '').trim();
+    setCreateAttempted(true);
+    const valid = name.length > 0 && hasMinLetters(name) && name.length <= 255 && isValidHex(color);
+    if (!valid) return; // mostrar feedback debajo de los campos
 
     setCreatingCategory(true);
     try {
@@ -81,8 +85,8 @@ export default function CategoryManagerModal({
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          nombre: newCatNombre,
-          color: newCatColor || undefined
+          nombre: name,
+          color: color || undefined
         }),
       });
 
@@ -96,6 +100,7 @@ export default function CategoryManagerModal({
       setSelectedCategories(prev => [...prev, newCategory.id]);
       setNewCatNombre('');
       setNewCatColor('#000000');
+      setCreateAttempted(false);
 
       Swal.fire({
         icon: 'success',
@@ -117,14 +122,10 @@ export default function CategoryManagerModal({
   };
 
   const handleEditCategory = async (categoryId) => {
-    if (!editNombre || editNombre.trim().length < 2) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'El nombre debe tener al menos 2 caracteres'
-      });
-      return;
-    }
+    const name = (editNombre || '').trim();
+    const color = (editColor || '').trim();
+    const valid = name.length > 0 && hasMinLetters(name) && name.length <= 255 && isValidHex(color);
+    if (!valid) return; // feedback inline
 
     setIsUpdating(true);
     try {
@@ -138,8 +139,8 @@ export default function CategoryManagerModal({
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          nombre: editNombre,
-          color: editColor
+          nombre: name,
+          color: color
         }),
       });
 
@@ -275,21 +276,43 @@ export default function CategoryManagerModal({
                   <label className="form-label small">Nombre</label>
                   <input
                     type="text"
-                    className="form-control form-control-sm"
+                    className={`form-control form-control-sm ${(() => {
+                      if (!createAttempted) return '';
+                      const name = (newCatNombre || '').trim();
+                      if (name.length === 0) return 'is-invalid';
+                      if (!hasMinLetters(name)) return 'is-invalid';
+                      if (name.length > 255) return 'is-invalid';
+                      return '';
+                    })()}`}
                     placeholder="Ej: Informática"
+                    maxLength={255}
                     value={newCatNombre}
                     onChange={e => setNewCatNombre(e.target.value)}
                   />
+                  {(() => {
+                    const name = (newCatNombre || '').trim();
+                    if (createAttempted) {
+                      let msg = '';
+                      if (name.length === 0) msg = 'El nombre es obligatorio';
+                      else if (!hasMinLetters(name)) msg = 'El nombre debe tener al menos 2 letras';
+                      else if (name.length > 255) msg = 'El nombre no puede exceder 255 caracteres';
+                      if (msg) return (<div className="invalid-feedback d-block">{msg}</div>);
+                    }
+                    return (<div className="form-text">{name.length}/255</div>);
+                  })()}
                 </div>
                 <div>
                   <label className="form-label small">Color</label>
                   <input
                     type="color"
-                    className="form-control form-control-sm p-1"
+                    className={`form-control form-control-sm p-1 ${createAttempted && !isValidHex(newCatColor) ? 'is-invalid' : ''}`}
                     style={{ width: 50, height: 36 }}
                     value={newCatColor}
                     onChange={e => setNewCatColor(e.target.value)}
                   />
+                  {createAttempted && !isValidHex(newCatColor) && (
+                    <div className="invalid-feedback d-block">El color debe ser un hexadecimal válido (ej: #ff0000)</div>
+                  )}
                 </div>
                 <button
                   type="submit"
@@ -363,20 +386,42 @@ export default function CategoryManagerModal({
 
                         {/* Nombre o edición */}
                         {editingId === cat.id ? (
-                          <div className="d-flex gap-2 flex-grow-1">
-                            <input
-                              type="text"
-                              className="form-control form-control-sm"
-                              value={editNombre}
-                              onChange={e => setEditNombre(e.target.value)}
-                            />
-                            <input
-                              type="color"
-                              className="form-control form-control-sm p-1"
-                              style={{ width: 50, height: 36 }}
-                              value={editColor}
-                              onChange={e => setEditColor(e.target.value)}
-                            />
+                          <div className="d-flex gap-2 flex-grow-1 align-items-start">
+                            <div className="flex-grow-1">
+                              <input
+                                type="text"
+                                className={`form-control form-control-sm ${(() => {
+                                  const name = (editNombre || '').trim();
+                                  if (name.length === 0) return 'is-invalid';
+                                  if (!hasMinLetters(name)) return 'is-invalid';
+                                  if (name.length > 255) return 'is-invalid';
+                                  return '';
+                                })()}`}
+                                maxLength={255}
+                                value={editNombre}
+                                onChange={e => setEditNombre(e.target.value)}
+                              />
+                              {(() => {
+                                const name = (editNombre || '').trim();
+                                let msg = '';
+                                if (name.length === 0) msg = 'El nombre es obligatorio';
+                                else if (!hasMinLetters(name)) msg = 'El nombre debe tener al menos 2 letras';
+                                else if (name.length > 255) msg = 'El nombre no puede exceder 255 caracteres';
+                                return msg ? (<div className="invalid-feedback d-block">{msg}</div>) : null;
+                              })()}
+                            </div>
+                            <div>
+                              <input
+                                type="color"
+                                className={`form-control form-control-sm p-1 ${isValidHex(editColor) ? '' : 'is-invalid'}`}
+                                style={{ width: 50, height: 36 }}
+                                value={editColor}
+                                onChange={e => setEditColor(e.target.value)}
+                              />
+                              {!isValidHex(editColor) && (
+                                <div className="invalid-feedback d-block">Color hexadecimal inválido</div>
+                              )}
+                            </div>
                           </div>
                         ) : (
                           <span>{cat.nombre}</span>
@@ -390,7 +435,11 @@ export default function CategoryManagerModal({
                             <button
                               className="btn btn-success btn-sm"
                               onClick={() => handleEditCategory(cat.id)}
-                              disabled={isUpdating}
+                              disabled={isUpdating || (() => {
+                                const name = (editNombre || '').trim();
+                                const color = (editColor || '').trim();
+                                return !(name.length > 0 && hasMinLetters(name) && name.length <= 255 && isValidHex(color));
+                              })()}
                               title="Guardar cambios"
                             >
                               <i className="bi bi-check-circle me-1"></i>

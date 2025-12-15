@@ -49,11 +49,11 @@ export class EspacioController {
       res.status(201).json({ ok: true });
     } catch (error) {
       console.error(error);
-      if (error.name === 'ZodError') {
-        const errorMessage = error.errors[0]?.message || 'Error de validación';
+      if (error && error.name === 'ZodError') {
+        const errorMessage = error.errors?.[0]?.message || 'Error de validación';
         return res.status(400).json({ error: errorMessage });
       }
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message || 'Error en actualización de espacio' });
     }
   };
   

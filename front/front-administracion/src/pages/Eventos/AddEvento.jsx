@@ -48,6 +48,8 @@ export default function AddEvento() {
 
     if (!cleanDescripcion || cleanDescripcion.length < 1) {
       newErrors.descripcion = "La descripción es obligatoria";
+    } else if (cleanDescripcion.length > 500) {
+      newErrors.descripcion = "La descripción no puede exceder 500 caracteres";
     }
 
     if (!fechaInicio) {
@@ -103,7 +105,7 @@ export default function AddEvento() {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Error al guardar el evento",
+        text: error?.message || "Error al guardar el evento",
         confirmButtonText: "Aceptar"
       });
     }
@@ -155,9 +157,13 @@ export default function AddEvento() {
               rows="4"
               placeholder="Describe el evento..."
               value={descripcion}
+              maxLength={500}
               onChange={(e) => setDescripcion(e.target.value)}
             ></textarea>
             {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
+            {!errors.descripcion && (
+              <div className="form-text">{descripcion.length}/500</div>
+            )}
           </div>
 
           <div className="row">

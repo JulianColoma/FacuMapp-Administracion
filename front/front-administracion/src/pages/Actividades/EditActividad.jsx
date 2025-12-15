@@ -106,6 +106,8 @@ export default function EditActividad() {
 
     if (!cleanDescripcion || cleanDescripcion.length < 1) {
       newErrors.descripcion = "La descripción es obligatoria";
+    } else if (cleanDescripcion.length > 500) {
+      newErrors.descripcion = "La descripción no puede exceder 500 caracteres";
     }
 
     if (!fecha) {
@@ -222,9 +224,13 @@ export default function EditActividad() {
             id="descripcion"
             rows="3"
             value={descripcion}
+            maxLength={500}
             onChange={(e) => setDescripcion(e.target.value)}
           ></textarea>
           {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
+          {!errors.descripcion && (
+            <div className="form-text">{descripcion.length}/500</div>
+          )}
         </div>
         <div className="mb-3">
           <label htmlFor="fecha" className="form-label">
@@ -292,9 +298,20 @@ export default function EditActividad() {
           </select>
           {errors.idEspacio && <div className="invalid-feedback">{errors.idEspacio}</div>}
         </div>
-        <button type="submit" className="btn btn-primary">
-          Guardar Cambios
-        </button>
+        <div className="d-flex gap-2 justify-content-end">
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={() => navigate(`/eventos/${eventoId}`)}
+          >
+            <i className="bi bi-x-circle me-2"></i>
+            Cancelar
+          </button>
+          <button type="submit" className="btn btn-primary">
+            <i className="bi bi-check-circle me-2"></i>
+            Guardar Cambios
+          </button>
+        </div>
       </form>
     </div>
   );

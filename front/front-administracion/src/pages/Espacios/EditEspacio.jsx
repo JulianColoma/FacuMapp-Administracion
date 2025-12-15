@@ -138,6 +138,8 @@ export default function EditEspacio() {
 
     if (!cleanDescripcion || cleanDescripcion.length < 1) {
       newErrors.descripcion = "La descripción es obligatoria";
+    } else if (cleanDescripcion.length > 500) {
+      newErrors.descripcion = "La descripción no puede exceder 500 caracteres";
     }
 
     if (!capacidad || isNaN(numCapacidad) || numCapacidad < 1) {
@@ -192,7 +194,7 @@ export default function EditEspacio() {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Error al actualizar el espacio",
+        text: error?.message || "Error al actualizar el espacio",
         confirmButtonText: "Aceptar"
       });
     }
@@ -272,10 +274,14 @@ export default function EditEspacio() {
               rows="5"
               className={`form-control w-100 ${errors.descripcion ? "is-invalid" : ""}`}
               value={descripcion}
+              maxLength={500}
               onChange={(e) => setDescripcion(e.target.value)}
             />
             {errors.descripcion && (
               <div className="invalid-feedback">{errors.descripcion}</div>
+            )}
+            {!errors.descripcion && (
+              <div className="form-text">{descripcion.length}/500</div>
             )}
           </div>
 
