@@ -183,8 +183,8 @@ export class CategoriaController {
 
     try {
       const validated_input = CategoriaSchema.parse(req.body);
-      await CategoriaModel.postCategoria(validated_input);
-      res.status(201).json({ ok: true });
+      const newCategoria = await CategoriaModel.postCategoria(validated_input);
+      res.status(201).json(newCategoria);
     } catch (error) {
       console.error(error);
       res.status(400).json({ error: error.message });

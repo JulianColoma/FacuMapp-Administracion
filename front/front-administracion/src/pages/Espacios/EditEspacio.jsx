@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { API_URL } from "../../config";
+import CategoryManagerModal from "../../components/CategoryManagerModal";
 
 export default function EditEspacio() {
   const { id } = useParams();
@@ -13,9 +14,6 @@ export default function EditEspacio() {
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [initialSelectedCategories, setInitialSelectedCategories] = useState([]);
-  const [newCatNombre, setNewCatNombre] = useState("");
-  const [newCatColor, setNewCatColor] = useState("#000000");
-  const [creatingCategory, setCreatingCategory] = useState(false);
   const [errors, setErrors] = useState({});
   const [generalError, setGeneralError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -75,54 +73,8 @@ export default function EditEspacio() {
     fetchCategorias();
   }, [id]);
 
-  const toggleCategory = (catId) => {
-    setSelectedCategories((prev) =>
-      prev.includes(catId) ? prev.filter((i) => i !== catId) : [...prev, catId]
-    );
-  };
-
-  const handleCreateCategory = async (e) => {
-    e.preventDefault();
-    if (!newCatNombre || newCatNombre.trim().length < 2) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'El nombre de la categoría debe tener al menos 2 caracteres' });
-      return;
-    }
-    setCreatingCategory(true);
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/categoria`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ nombre: newCatNombre, color: newCatColor || undefined }),
-      });
-      if (!res.ok) throw new Error('No se pudo crear la categoría');
-      // refetch categories
-      const token2 = localStorage.getItem('token');
-      const listRes = await fetch(`${API_URL}/categoria`, {
-        credentials: 'include',
-        headers: {
-          ...(token2 ? { Authorization: `Bearer ${token2}` } : {}),
-        },
-      });
-      if (listRes.ok) {
-        const cats = await listRes.json();
-        setCategories(cats || []);
-        // select the newly created category by matching name (best-effort)
-        const match = (cats || []).find((c) => c.nombre === newCatNombre);
-        if (match) setSelectedCategories((prev) => [...prev, match.id]);
-        setNewCatNombre('');
-        setNewCatColor('#000000');
-      }
-    } catch (err) {
-      console.error(err);
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo crear la categoría' });
-    } finally {
-      setCreatingCategory(false);
-    }
+  const handleCategoriesChange = (categoryIds) => {
+    setSelectedCategories(categoryIds);
   };
 
   const syncCategorias = async () => {
@@ -366,52 +318,33 @@ export default function EditEspacio() {
 
             {/* Categorías existentes */}
             <div className="d-flex flex-wrap gap-2 mb-4">
-              {categories.map(cat => {
-                const active = selectedCategories.includes(cat.id);
-
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    className={`btn btn-sm ${active ? "btn-primary" : "btn-outline-secondary"
-                      }`}
-                    style={active ? { backgroundColor: cat.color, borderColor: cat.color } : undefined}
-                    onClick={() => toggleCategory(cat.id)}
-                  >
-                    {cat.nombre}
-                  </button>
-                );
-              })}
+              {categories.filter(cat => selectedCategories.includes(cat.id)).map(cat => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  className="btn btn-sm"
+                  style={{ backgroundColor: cat.color, borderColor: cat.color, color: 'white' }}
+                  disabled
+                >
+                  <i className="bi bi-tag-fill me-1"></i>
+                  {cat.nombre}
+                </button>
+              ))}
             </div>
 
-            {/* Crear nueva categoría */}
-            <div className="d-flex gap-2 align-items-center">
-              <input
-                className="form-control form-control-sm"
-                placeholder="Nueva categoría"
-                value={newCatNombre}
-                onChange={e => setNewCatNombre(e.target.value)}
-              />
-
-              <input
-                type="color"
-                className="form-control form-control-sm p-0"
-                style={{ width: 36, height: 36 }}
-                value={newCatColor}
-                onChange={e => setNewCatColor(e.target.value)}
-              />
-
-              <button
-                type="button"
-                className="btn btn-outline-success btn-sm px-3"
-                onClick={handleCreateCategory}
-              >
-                Agregar
-              </button>
-            </div>
+            {/* Botón para gestionar categorías */}
+            <button
+              type="button"
+              className="btn btn-outline-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#categoryManagerModal"
+            >
+              <i className="bi bi-gear me-2"></i>
+              Gestionar Categorías
+            </button>
 
             <small className="text-muted d-block mt-2">
-              Seleccione una o más categorías o cree una nueva
+              Haz clic para agregar, editar o eliminar categorías
             </small>
           </div>
 
@@ -428,6 +361,13 @@ export default function EditEspacio() {
           </div>
         </form>
       </div>
+
+      {/* Category Manager Modal */}
+      <CategoryManagerModal 
+        modalId="categoryManagerModal"
+        selectedCategoryIds={selectedCategories}
+        onCategoriesChange={handleCategoriesChange}
+      />
     </div>
   );
 

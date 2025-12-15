@@ -39,10 +39,10 @@ export class UserController {
       res
         .cookie("access_token", token, {
           httpOnly: true,
-          // In dev we need SameSite=None so the cookie is sent from http://localhost:5173
-          // Secure can remain false locally because we are not on HTTPS
+          // In dev we use SameSite=Lax for same-site requests
+          // In production we use SameSite=None with Secure
           secure: process.env.ENV === "production",
-          sameSite: process.env.ENV === "production" ? "None" : "None",
+          sameSite: process.env.ENV === "production" ? "None" : "Lax",
         })
         .send({ user, token });
     } catch (error) {

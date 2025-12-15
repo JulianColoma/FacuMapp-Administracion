@@ -127,12 +127,12 @@ export class CategoriaModel {
   static postCategoria = async (input) => {
     const { nombre, color } = await input;
 
-    await query(
+    const result = await query(
       `INSERT INTO categoria (nombre, color)
          VALUES (?, ?);`,
       [nombre, color]
     );
-    return true;
+    return { id: result.insertId, nombre, color };
   };
   static deleteById = async (id) => {
     try {
