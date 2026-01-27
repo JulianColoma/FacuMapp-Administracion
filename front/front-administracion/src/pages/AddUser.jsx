@@ -83,11 +83,11 @@ const AddUser = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <h1 className="mb-4">Agregar Usuario</h1>
-      {generalError && <div className="alert alert-danger">{generalError}</div>}
-      {success && <div className="alert alert-success">Usuario creado con éxito. Redirigiendo...</div>}
-      <form onSubmit={handleSubmit}>
+    <div className="container mt-5" style={{ display: 'flex', justifyContent: 'center' }}>
+      <form onSubmit={handleSubmit} style={{ maxWidth: '500px', width: '100%' }}>
+        <h1 className="mb-4">Agregar Usuario</h1>
+        {generalError && <div className="alert alert-danger">{generalError}</div>}
+        {success && <div className="alert alert-success">Usuario creado con éxito. Redirigiendo...</div>}
         <div className="mb-3">
           <label htmlFor="nombre" className="form-label">Nombre de Usuario</label>
           <input
