@@ -9,6 +9,10 @@ export default function Usuarios() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   const handleDelete = async (id) => {
     const result = await Swal.fire({
       title: "¿Estás seguro?",
@@ -123,15 +127,16 @@ export default function Usuarios() {
         </Link>
       </div>
 
-      <div className="custom-card mb-4">
-        <div className="position-relative">
-          <i className="bi bi-search position-absolute" style={{ left: "12px", top: "50%", transform: "translateY(-50%)", color: "#6c757d" }}></i>
+      <div className="row mb-4">
+        <div className="col-12">
           <input
             type="text"
-            className="form-control"
-            placeholder="Buscar usuarios por nombre o rol..."
+            className="form-control form-control-custom"
+            placeholder="Buscar usuarios..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+            }}
           />
         </div>
       </div>

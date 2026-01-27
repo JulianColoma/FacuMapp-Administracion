@@ -5,6 +5,11 @@ import { API_URL } from "../../config";
 
 export default function AddEvento() {
   const [nombre, setNombre] = useState("");
+const [searchTerm, setSearchTerm] = useState("");
+
+const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+};
   const [descripcion, setDescripcion] = useState("");
   const [fechaInicio, setFechaInicio] = useState("");
   const [fechaFin, setFechaFin] = useState("");

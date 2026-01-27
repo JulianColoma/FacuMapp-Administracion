@@ -141,15 +141,17 @@ export default function Eventos() {
         </Link>
       </div>
 
-      <div className="custom-card mb-4">
-        <div className="position-relative">
-          <i className="bi bi-search position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6c757d' }}></i>
+      <div className="row mb-4">
+        <div className="col-12">
           <input
             type="text"
-            className="form-control ps-5"
-            placeholder="Buscar eventos por nombre o descripción..."
+            className="form-control form-control-custom"
+            placeholder="Buscar eventos..."
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
           />
         </div>
       </div>
