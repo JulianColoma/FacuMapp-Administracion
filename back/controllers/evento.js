@@ -2,9 +2,9 @@ import {EventoSchema} from "../schemas/evento.js"
 import { EventoModel } from "../models/evento.js"
 export class EventoController {
     static getAll = async (req, res) => {
-       
         try{
-        const eventos = await EventoModel.getAll()
+        const { upcoming } = req.query;
+        const eventos = await EventoModel.getAll(upcoming)
         res.json(eventos)
         } catch (error) {
             console.error(error);

@@ -1,16 +1,24 @@
 import { query } from "../config/database.js";
 export class EventoModel {
-  static getAll = async () => {
-    const eventos = await query(
-      `SELECT e.id, e.nombre, e.descripcion, 
-              DATE_FORMAT(e.fecha_inicio, '%Y-%m-%d') as fecha_inicio,
-              DATE_FORMAT(e.fecha_fin, '%Y-%m-%d') as fecha_fin,
-              e.id_espacio, es.nombre as nombre_espacio 
-       FROM evento e 
-       LEFT JOIN espacio es ON e.id_espacio = es.id`
-    );
+  static getAll = async (upcoming) => {
+    let q = `
+      SELECT e.id, e.nombre, e.descripcion, 
+             DATE_FORMAT(e.fecha_inicio, '%Y-%m-%d') as fecha_inicio,
+             DATE_FORMAT(e.fecha_fin, '%Y-%m-%d') as fecha_fin,
+             e.id_espacio, es.nombre as nombre_espacio 
+      FROM evento e 
+      LEFT JOIN espacio es ON e.id_espacio = es.id`;
+    
+    
+    if (upcoming === 'true' || upcoming === true) {
+     
+      q += ` WHERE e.fecha_inicio >= NOW()`; 
+     
+    }
+
+    const eventos = await query(q);
     return eventos;
-  };
+};
 
   static getById = async (id) => {
     const evento = await query(
