@@ -16,6 +16,13 @@ export default function EditEvento() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const isEventoPast = (endValue) => {
+    if (!endValue) return false;
+    const datePart = String(endValue).split("T")[0];
+    const endDate = new Date(`${datePart}T23:59:59`);
+    return endDate < new Date();
+  };
+
   useEffect(() => {
     const fetchEvento = async () => {
       try {
@@ -57,6 +64,16 @@ export default function EditEvento() {
     e.preventDefault();
     setErrors({});
     setGeneralError(null);
+
+    if (isEventoPast(fechaFin || fechaInicio)) {
+      await Swal.fire({
+        icon: "info",
+        title: "Evento finalizado",
+        text: "No se puede modificar un evento que ya paso.",
+        confirmButtonText: "Aceptar"
+      });
+      return;
+    }
 
     // Validaciones del lado cliente
     const cleanNombre = nombre.trim();
@@ -157,6 +174,8 @@ export default function EditEvento() {
     );
   }
 
+  const eventoFinalizado = isEventoPast(fechaFin || fechaInicio);
+
   return (
     <div className="page-container">
       <div className="page-header ">
@@ -170,6 +189,12 @@ export default function EditEvento() {
       </div>
 
       <div className="card  border-0 p-4 shadow-sm">
+        {eventoFinalizado && (
+          <div className="alert alert-warning d-flex align-items-center mb-4">
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            Este evento ya paso. Solo se permite visualizar la informacion.
+          </div>
+        )}
         {generalError && (
           <div className="alert alert-danger d-flex align-items-center mb-4">
             <i className="bi bi-exclamation-triangle-fill me-2"></i>
@@ -188,6 +213,7 @@ export default function EditEvento() {
               id="nombre"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
+              disabled={eventoFinalizado}
             />
             {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
           </div>
@@ -203,6 +229,7 @@ export default function EditEvento() {
               value={descripcion}
               maxLength={500}
               onChange={(e) => setDescripcion(e.target.value)}
+              disabled={eventoFinalizado}
             ></textarea>
             {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
             {!errors.descripcion && (
@@ -224,6 +251,7 @@ export default function EditEvento() {
                 onChange={(e) => setFechaInicio(e.target.value)}
                 onInvalid={(e) => e.target.setCustomValidity(' ')}
                 onInput={(e) => e.target.setCustomValidity('')}
+                disabled={eventoFinalizado}
               />
               {errors.fechaInicio && <div className="invalid-feedback">{errors.fechaInicio}</div>}
             </div>
@@ -241,6 +269,7 @@ export default function EditEvento() {
                 onChange={(e) => setFechaFin(e.target.value)}
                 onInvalid={(e) => e.target.setCustomValidity(' ')}
                 onInput={(e) => e.target.setCustomValidity('')}
+                disabled={eventoFinalizado}
               />
               {errors.fechaFin && <div className="invalid-feedback">{errors.fechaFin}</div>}
             </div>
@@ -256,6 +285,7 @@ export default function EditEvento() {
               id="espacio"
               value={idEspacio}
               onChange={(e) => setIdEspacio(e.target.value)}
+              disabled={eventoFinalizado}
             >
               <option value="">-- Seleccionar un espacio --</option>
               {espacios.map((espacio) => (
@@ -275,7 +305,7 @@ export default function EditEvento() {
               <i className="bi bi-x-circle me-2"></i>
               Cancelar
             </button>
-            <button type="submit" className="btn btn-primary px-4">
+            <button type="submit" className="btn btn-primary px-4" disabled={eventoFinalizado}>
               <i className="bi bi-check-circle me-2"></i>
               Guardar Cambios
             </button>

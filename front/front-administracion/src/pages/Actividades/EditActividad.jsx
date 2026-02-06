@@ -18,6 +18,21 @@ export default function EditActividad() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const isEventoPast = (endValue) => {
+    if (!endValue) return false;
+    const datePart = String(endValue).split("T")[0];
+    const endDate = new Date(`${datePart}T23:59:59`);
+    return endDate < new Date();
+  };
+
+  const isActividadPast = (activityDate, activityEndTime) => {
+    if (!activityDate) return false;
+    const datePart = String(activityDate).split("T")[0];
+    const timePart = activityEndTime ? String(activityEndTime) : "23:59:59";
+    const endDate = new Date(`${datePart}T${timePart}`);
+    return endDate < new Date();
+  };
+
   useEffect(() => {
     const fetchActividad = async () => {
       try {
@@ -92,6 +107,16 @@ export default function EditActividad() {
     e.preventDefault();
     setErrors({});
     setGeneralError(null);
+
+    if (isEventoPast(evento?.fecha_fin || evento?.fecha_inicio) || isActividadPast(fecha, horaFin)) {
+      await Swal.fire({
+        icon: "info",
+        title: "Actividad finalizada",
+        text: "No se puede modificar una actividad que ya paso.",
+        confirmButtonText: "Aceptar"
+      });
+      return;
+    }
 
     // Validaciones del lado cliente
     const cleanNombre = nombre.trim();
@@ -197,9 +222,18 @@ export default function EditActividad() {
     return <div>Error: {generalError}</div>;
   }
 
+  const actividadFinalizada = isActividadPast(fecha, horaFin);
+  const eventoFinalizado = isEventoPast(evento?.fecha_fin || evento?.fecha_inicio);
+  const lecturaSola = actividadFinalizada || eventoFinalizado;
+
   return (
     <div className="container-fluid px-4 mt-5">
       <h1 className="mb-4 display-6 fw-bold">Editar Actividad</h1>
+      {lecturaSola && (
+        <div className="alert alert-warning">
+          Esta actividad ya paso. Solo se permite visualizar la informacion.
+        </div>
+      )}
       {generalError && <div className="alert alert-danger">{generalError}</div>}
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
@@ -212,6 +246,7 @@ export default function EditActividad() {
             id="nombre"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
+            disabled={lecturaSola}
           />
           {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
         </div>
@@ -226,6 +261,7 @@ export default function EditActividad() {
             value={descripcion}
             maxLength={500}
             onChange={(e) => setDescripcion(e.target.value)}
+            disabled={lecturaSola}
           ></textarea>
           {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
           {!errors.descripcion && (
@@ -244,6 +280,7 @@ export default function EditActividad() {
             onChange={(e) => setFecha(e.target.value)}
             onInvalid={(e) => e.target.setCustomValidity(' ')}
             onInput={(e) => e.target.setCustomValidity('')}
+            disabled={lecturaSola}
           />
           {errors.fecha && <div className="invalid-feedback">{errors.fecha}</div>}
         </div>
@@ -260,6 +297,7 @@ export default function EditActividad() {
               onChange={(e) => setHoraInicio(e.target.value)}
               onInvalid={(e) => e.target.setCustomValidity(' ')}
               onInput={(e) => e.target.setCustomValidity('')}
+              disabled={lecturaSola}
             />
             {errors.horaInicio && <div className="invalid-feedback">{errors.horaInicio}</div>}
           </div>
@@ -275,6 +313,7 @@ export default function EditActividad() {
               onChange={(e) => setHoraFin(e.target.value)}
               onInvalid={(e) => e.target.setCustomValidity(' ')}
               onInput={(e) => e.target.setCustomValidity('')}
+              disabled={lecturaSola}
             />
             {errors.horaFin && <div className="invalid-feedback">{errors.horaFin}</div>}
           </div>
@@ -288,6 +327,7 @@ export default function EditActividad() {
             className={`form-select ${errors.idEspacio ? 'is-invalid' : ''}`}
             value={idEspacio}
             onChange={(e) => setIdEspacio(e.target.value)}
+            disabled={lecturaSola}
           >
             <option value="">Selecciona un espacio</option>
             {espacios.map((esp) => (
@@ -307,7 +347,7 @@ export default function EditActividad() {
             <i className="bi bi-x-circle me-2"></i>
             Cancelar
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn btn-primary" disabled={lecturaSola}>
             <i className="bi bi-check-circle me-2"></i>
             Guardar Cambios
           </button>

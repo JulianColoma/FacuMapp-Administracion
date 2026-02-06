@@ -17,6 +17,13 @@ export default function AddActividad() {
   const [generalError, setGeneralError] = useState(null);
   const navigate = useNavigate();
 
+  const isEventoPast = (endValue) => {
+    if (!endValue) return false;
+    const datePart = String(endValue).split("T")[0];
+    const endDate = new Date(`${datePart}T23:59:59`);
+    return endDate < new Date();
+  };
+
   useEffect(() => {
     const loadEvento = async () => {
       try {
@@ -58,6 +65,16 @@ export default function AddActividad() {
     e.preventDefault();
     setErrors({});
     setGeneralError(null);
+
+    if (isEventoPast(evento?.fecha_fin || evento?.fecha_inicio)) {
+      await Swal.fire({
+        icon: "info",
+        title: "Evento finalizado",
+        text: "No se pueden agregar actividades a un evento que ya paso.",
+        confirmButtonText: "Aceptar"
+      });
+      return;
+    }
 
     // Validaciones del lado cliente
     const cleanNombre = nombre.trim();
@@ -155,6 +172,11 @@ export default function AddActividad() {
   return (
     <div className="container-fluid px-4 mt-5">
       <h1 className="mb-4 display-6 fw-bold">Agregar Actividad</h1>
+      {isEventoPast(evento?.fecha_fin || evento?.fecha_inicio) && (
+        <div className="alert alert-warning">
+          Este evento ya paso. Solo se permite visualizar la informacion.
+        </div>
+      )}
       {generalError && <div className="alert alert-danger">{generalError}</div>}
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
@@ -167,6 +189,7 @@ export default function AddActividad() {
             id="nombre"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
+            disabled={isEventoPast(evento?.fecha_fin || evento?.fecha_inicio)}
           />
           {errors.nombre && <div className="invalid-feedback">{errors.nombre}</div>}
         </div>
@@ -181,6 +204,7 @@ export default function AddActividad() {
             value={descripcion}
             maxLength={500}
             onChange={(e) => setDescripcion(e.target.value)}
+            disabled={isEventoPast(evento?.fecha_fin || evento?.fecha_inicio)}
           ></textarea>
           {errors.descripcion && <div className="invalid-feedback">{errors.descripcion}</div>}
           {!errors.descripcion && (
@@ -199,6 +223,7 @@ export default function AddActividad() {
             onChange={(e) => setFecha(e.target.value)}
             onInvalid={(e) => e.target.setCustomValidity(' ')}
             onInput={(e) => e.target.setCustomValidity('')}
+            disabled={isEventoPast(evento?.fecha_fin || evento?.fecha_inicio)}
           />
           {errors.fecha && <div className="invalid-feedback">{errors.fecha}</div>}
         </div>
@@ -215,6 +240,7 @@ export default function AddActividad() {
               onChange={(e) => setHoraInicio(e.target.value)}
               onInvalid={(e) => e.target.setCustomValidity(' ')}
               onInput={(e) => e.target.setCustomValidity('')}
+              disabled={isEventoPast(evento?.fecha_fin || evento?.fecha_inicio)}
             />
             {errors.horaInicio && <div className="invalid-feedback">{errors.horaInicio}</div>}
           </div>
@@ -230,6 +256,7 @@ export default function AddActividad() {
               onChange={(e) => setHoraFin(e.target.value)}
               onInvalid={(e) => e.target.setCustomValidity(' ')}
               onInput={(e) => e.target.setCustomValidity('')}
+              disabled={isEventoPast(evento?.fecha_fin || evento?.fecha_inicio)}
             />
             {errors.horaFin && <div className="invalid-feedback">{errors.horaFin}</div>}
           </div>
@@ -243,6 +270,7 @@ export default function AddActividad() {
             className={`form-select ${errors.idEspacio ? 'is-invalid' : ''}`}
             value={idEspacio}
             onChange={(e) => setIdEspacio(e.target.value)}
+            disabled={isEventoPast(evento?.fecha_fin || evento?.fecha_inicio)}
           >
             <option value="">Selecciona un espacio</option>
             {espacios.map((esp) => (
@@ -262,7 +290,7 @@ export default function AddActividad() {
             <i className="bi bi-x-circle me-2"></i>
             Cancelar
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button type="submit" className="btn btn-primary" disabled={isEventoPast(evento?.fecha_fin || evento?.fecha_inicio)}>
             <i className="bi bi-check-circle me-2"></i>
             Crear Actividad
           </button>

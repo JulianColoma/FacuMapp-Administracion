@@ -12,6 +12,21 @@ export default function EventoDetalle() {
   const [evento, setEvento] = useState(null);
   const navigate = useNavigate();
 
+  const isEventoPast = (endValue) => {
+    if (!endValue) return false;
+    const datePart = String(endValue).split("T")[0];
+    const endDate = new Date(`${datePart}T23:59:59`);
+    return endDate < new Date();
+  };
+
+  const isActividadPast = (actividad) => {
+    if (!actividad?.fecha) return false;
+    const datePart = String(actividad.fecha).split("T")[0];
+    const timePart = actividad.hora_fin ? String(actividad.hora_fin) : "23:59:59";
+    const endDate = new Date(`${datePart}T${timePart}`);
+    return endDate < new Date();
+  };
+
   const fetchEventoYActividades = async () => {
     try {
       const eventoResponse = await fetch(`${API_URL}/evento/${id}`);
@@ -105,13 +120,21 @@ export default function EventoDetalle() {
         <h1 className="display-6 fw-bold">
           Actividades del {evento ? evento.nombre : "Evento"}
         </h1>
-        <Link to={`/eventos/${id}/add-actividad`} className="btn btn-primary">
-          Agregar Actividad
-        </Link>
+        {isEventoPast(evento?.fecha_fin || evento?.fecha_inicio) ? (
+          <button type="button" className="btn btn-secondary" disabled>
+            Evento finalizado
+          </button>
+        ) : (
+          <Link to={`/eventos/${id}/add-actividad`} className="btn btn-primary">
+            Agregar Actividad
+          </Link>
+        )}
       </div>
       {actividades.length > 0 ? (
         <div className="actividades-grid">
-          {actividades.map((act) => (
+          {actividades.map((act) => {
+            const actividadPasada = isActividadPast(act);
+            return (
             <div key={act.id} className="actividad-card">
               <div className="actividad-card-body">
                 <h5 className="actividad-card-title">{act.nombre}</h5>
@@ -138,28 +161,30 @@ export default function EventoDetalle() {
                 </div>
 
                 <div className="actividad-card-actions">
-                  <Link
-                    to={`/eventos/${id}/edit-actividad/${act.id}`}
-                    className="evento-btn-icon"
-                    title="Editar actividad"
-                  >
-                    <i className="bi bi-pencil"></i>
-                    
-                  </Link>
+                  {!actividadPasada && (
+                    <Link
+                      to={`/eventos/${id}/edit-actividad/${act.id}`}
+                      className="evento-btn-icon"
+                      title="Editar actividad"
+                    >
+                      <i className="bi bi-pencil"></i>
+                    </Link>
+                  )}
 
-                  <button
-                    className="evento-btn-icon evento-btn-delete"
-                    onClick={() => handleDelete(act.id)}
-                    title="Eliminar actividad"
-                  >
-                    <i className="bi bi-trash"></i>
-                    
-                  </button>
+                  {!actividadPasada && (
+                    <button
+                      className="evento-btn-icon evento-btn-delete"
+                      onClick={() => handleDelete(act.id)}
+                      title="Eliminar actividad"
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
-
-          ))}
+            );
+          })}
         </div>
       ) : (
         <p>No hay actividades para este evento.</p>

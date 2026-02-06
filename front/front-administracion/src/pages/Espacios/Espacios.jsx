@@ -46,6 +46,9 @@ export default function Espacios() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [categoryQuery, setCategoryQuery] = useState("");
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [hoveredZone, setHoveredZone] = useState(null);
 
   const navigate = useNavigate();
@@ -78,11 +81,44 @@ export default function Espacios() {
     fetchEspacios();
   }, []);
 
-  const filteredEspacios = espacios.filter(
-    (esp) =>
-      esp.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      esp.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
+  const categoryMap = new Map();
+  espacios.forEach((esp) => {
+    (Array.isArray(esp.categorias) ? esp.categorias : []).forEach((cat) => {
+      if (!cat) return;
+      const key = cat.id != null ? String(cat.id) : String(cat.nombre || "");
+      if (key) categoryMap.set(key, cat);
+    });
+  });
+  const categoryOptions = Array.from(categoryMap.values()).sort((a, b) =>
+    String(a.nombre || "").localeCompare(String(b.nombre || ""))
   );
+  const selectedCategoryName = selectedCategory
+    ? categoryOptions.find((cat) => String(cat.id) === selectedCategory)?.nombre || ""
+    : "";
+  const normalizedCategoryQuery = categoryQuery.trim().toLowerCase();
+  const filteredCategories = categoryOptions.filter((cat) =>
+    String(cat.nombre || "").toLowerCase().includes(normalizedCategoryQuery)
+  );
+
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const hasFilters = Boolean(normalizedSearch || selectedCategory);
+  const filteredEspacios = espacios.filter((esp) => {
+    const nombre = String(esp.nombre || "").toLowerCase();
+    const descripcion = String(esp.descripcion || "").toLowerCase();
+    const matchesSearch =
+      !normalizedSearch ||
+      nombre.includes(normalizedSearch) ||
+      descripcion.includes(normalizedSearch);
+
+    const matchesCategory =
+      !selectedCategory ||
+      (Array.isArray(esp.categorias) ? esp.categorias : []).some((cat) => {
+        const key = cat && cat.id != null ? String(cat.id) : String(cat?.nombre || "");
+        return key === selectedCategory;
+      });
+
+    return matchesSearch && matchesCategory;
+  });
 
   const totalPages = Math.ceil(filteredEspacios.length / ITEMS_PER_PAGE);
 
@@ -107,19 +143,120 @@ export default function Espacios() {
         </h1>
       </div>
 
-      <div className="row">
-        <div className="col-12 mb-3">
-          <input
-            type="text"
-            className="form-control form-control-custom"
-            placeholder="Buscar espacios..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
+      <div className="filters-bar mb-4">
+        <div className="filters-main">
+          <div className="filters-field filters-search">
+            <i className="bi bi-search"></i>
+            <input
+              type="text"
+              className="filters-input"
+              placeholder="Buscar espacio..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+          <div
+            className="filters-category"
+            onBlur={() => setTimeout(() => setIsCategoryOpen(false), 100)}
+          >
+            <div className={`filters-field filters-compact ${isCategoryOpen ? "is-open" : ""}`}>
+              <i className="bi bi-tag"></i>
+              <input
+                type="text"
+                className="filters-input"
+                placeholder="Filtrar categorias..."
+                value={categoryQuery}
+                onChange={(e) => {
+                  setCategoryQuery(e.target.value);
+                  setIsCategoryOpen(true);
+                }}
+                onFocus={() => {
+                  setCategoryQuery(selectedCategoryName || categoryQuery);
+                  setIsCategoryOpen(true);
+                }}
+              />
+              <button
+                type="button"
+                className="filters-clear"
+                aria-label="Limpiar categoria"
+                disabled={!selectedCategory && !categoryQuery}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  setSelectedCategory("");
+                  setCategoryQuery("");
+                  setCurrentPage(1);
+                }}
+              >
+                <i className="bi bi-x"></i>
+              </button>
+            </div>
+            {isCategoryOpen && (
+              <div className="filters-dropdown" role="listbox">
+                <button
+                  type="button"
+                  className={`filters-option ${selectedCategory === "" ? "is-active" : ""}`}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    setSelectedCategory("");
+                    setCategoryQuery("");
+                    setCurrentPage(1);
+                    setIsCategoryOpen(false);
+                  }}
+                >
+                  Todas las categorias
+                </button>
+                {filteredCategories.length === 0 && (
+                  <div className="filters-empty">Sin resultados</div>
+                )}
+                {filteredCategories.map((cat) => {
+                  const value = cat.id != null ? String(cat.id) : String(cat.nombre || "");
+                  const isActive = selectedCategory === value;
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`filters-option ${isActive ? "is-active" : ""}`}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setSelectedCategory(value);
+                        setCategoryQuery(cat.nombre || "");
+                        setCurrentPage(1);
+                        setIsCategoryOpen(false);
+                      }}
+                    >
+                      <span
+                        className="filters-option-dot"
+                        style={{ backgroundColor: cat.color || "#94a3b8" }}
+                      ></span>
+                      <span>{cat.nombre || "Sin nombre"}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="filters-meta">
+          <span className="filters-count">{filteredEspacios.length} resultados</span>
+          <button
+            type="button"
+            className="filters-reset"
+            disabled={!hasFilters}
+            onClick={() => {
+              setSearchTerm("");
+              setSelectedCategory("");
               setCurrentPage(1);
             }}
-          />
+          >
+            Limpiar
+          </button>
         </div>
+      </div>
+
+      <div className="row">
         <div className="col-lg-7 mb-4">
           <div className="grid-container">
             {paginatedEspacios.map((esp) => {

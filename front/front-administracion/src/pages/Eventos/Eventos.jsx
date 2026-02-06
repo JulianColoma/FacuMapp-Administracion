@@ -32,6 +32,14 @@ export default function Eventos() {
     fetchEventos();
   }, []);
 
+  const isEventoPast = (evento) => {
+    const endValue = evento?.fecha_fin || evento?.fecha_inicio;
+    if (!endValue) return false;
+    const datePart = String(endValue).split("T")[0];
+    const endDate = new Date(`${datePart}T23:59:59`);
+    return endDate < new Date();
+  };
+
   const handleDelete = async (id) => {
     const result = await Swal.fire({
       title: "¿Estás seguro?",
@@ -175,7 +183,9 @@ export default function Eventos() {
       ) : (
         <>
           <div className="eventos-grid">
-            {paginatedEventos.map((ev) => (
+            {paginatedEventos.map((ev) => {
+              const eventoPasado = isEventoPast(ev);
+              return (
               <div key={ev.id} className="evento-card-compact">
                 <div className="evento-card-content">
                   <div className="evento-card-header">
@@ -213,25 +223,30 @@ export default function Eventos() {
                       <span>Ver Actividades</span>
                     </Link>
 
-                    <Link
-                      to={`/edit-evento/${ev.id}`}
-                      className="evento-btn-icon"
-                      title="Editar evento"
-                    >
-                      <i className="bi bi-pencil"></i>
-                    </Link>
+                    {!eventoPasado && (
+                      <Link
+                        to={`/edit-evento/${ev.id}`}
+                        className="evento-btn-icon"
+                        title="Editar evento"
+                      >
+                        <i className="bi bi-pencil"></i>
+                      </Link>
+                    )}
 
-                    <button
-                      className="evento-btn-icon evento-btn-delete"
-                      onClick={() => handleDelete(ev.id)}
-                      title="Eliminar evento"
-                    >
-                      <i className="bi bi-trash"></i>
-                    </button>
+                    {!eventoPasado && (
+                      <button
+                        className="evento-btn-icon evento-btn-delete"
+                        onClick={() => handleDelete(ev.id)}
+                        title="Eliminar evento"
+                      >
+                        <i className="bi bi-trash"></i>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {totalPages > 1 && (
