@@ -229,10 +229,33 @@ INSERT INTO espacio (id, nombre, descripcion, imagen, capacidad) VALUES
 
 -- 3.2. Insertar Categorías
 INSERT INTO categoria (nombre, color) VALUES 
-('Tecnología', '#3498db'), -- Azul
-('Arte y Cultura', '#e74c3c'), -- Rojo
-('Aire Libre', '#2ecc71'), -- Verde
-('Networking', '#f1c40f'); -- Amarillo
+-- Especialidades de la Facultad (Prioritarias)
+('Civil', '#0e8341'), --1
+('Mecánica', '#267e7c'),--2
+('Química', '#926d29'),--3
+('Básicas', '#8b181b'),--4
+('Industrial', '#c05029'),--5
+('Sistemas', '#4579b0'),--6
+('Eléctrica', '#cc3e45'),--7
+
+-- Espacios Académicos y de Estudio
+('Aulas', '#6610f2'),   --8             
+('Laboratorios e Investigación', '#6f42c1'), --9
+('Estudio y Lectura', '#20c997'),    --10 
+
+-- Administrativo y Gestión
+('Oficinas y Administración', '#495057'),--11
+
+-- Servicios e Instalaciones
+('Baños y Sanitarios', '#0dcaf0'),    --12
+('Alimentación y Descanso', '#fd7e14'),--13
+('Servicios al Estudiante', '#ffc107'),--14
+
+-- Otros espacios
+('Auditorios y Eventos', '#d63384'),  --15
+('Deportes y Exteriores', '#7cb342');  --16
+
+
 
 -- 3.3. Insertar Usuarios
 INSERT INTO users (nombre, contrasena, administrador) VALUES 
@@ -248,12 +271,68 @@ INSERT INTO evento (nombre, descripcion, fecha_inicio, fecha_fin, id_espacio) VA
 ('Hackathon 2026', 'Competición de programación de 48 horas.', '2026-12-01 18:00:00', '2026-12-03 18:00:00', 27); -- SUM
 
 -- 3.5. Insertar Categoría x Espacio
+I-- 3.5. Insertar Categoría x Espacio
 INSERT INTO categoriaxespacio (id_categoria, id_espacio) VALUES 
-(1, 24), -- TIC -> Tecnología
-(1, 30), -- Lab IEC -> Tecnología
-(3, 139), -- Polideportivo -> Aire Libre
-(3, 141), -- Paseo -> Aire Libre
-(4, 23); -- Buffet -> Networking
+
+-- =======================================================
+-- 1. ASIGNACIÓN POR DEPARTAMENTOS 
+-- =======================================================
+
+-- BASICAS (ID 4) 
+(4, 24), (4, 25), (4, 26), (4, 28), (4, 29), (4, 30), (4, 31), (4, 32), (4, 33), (4, 34), (4, 35),
+
+-- INDUSTRIAL (ID 5) 
+(5, 36), (5, 37), (5, 38), (5, 39), (5, 40), (5, 41), (5, 412), (5, 42), (5, 43), (5, 44), (5, 45), (5, 46),
+
+-- MECANICA (ID 2)
+(2, 491), (2, 492), (2, 50), (2, 51), (2, 52), (2, 53), (2, 54), (2, 55), (2, 56), (2, 57), (2, 58), (2, 59), (2, 60), (2, 61), (2, 611), (2, 612), (2, 613), (2, 62), (2, 64),
+
+-- QUIMICA (ID 3)
+(3, 66), (3, 67), (3, 69), (3, 70), (3, 71), (3, 72), (3, 73), (3, 74),
+-- laboratorios de química 
+(3, 89), (3, 96), (3, 99), (3, 101),
+
+-- SISTEMAS (ID 6) 
+(6, 75), (6, 78), (6, 79), (6, 80), (6, 81), (6, 82), (6, 83), (6, 84), (6, 85),
+
+
+-- ELECTRICA (ID 7) -> Rango 102-114
+(7, 102), (7, 103), (7, 104), (7, 105), (7, 106), (7, 107), (7, 108), (7, 109), (7, 110), (7, 111), (7, 112), (7, 1121), (7, 113), (7, 114),
+
+-- CIVIL (ID 1) -> Rango 115-1381
+(1, 115), (1, 116), (1, 118), (1, 119), (1, 120), (1, 121), (1, 122), (1, 123), (1, 125), (1, 126), (1, 133), (1, 134), (1, 135), (1, 136), (1, 137), (1, 138), (1, 1381),
+
+-- =======================================================
+-- 2. ASIGNACIÓN FUNCIONAL (Tipo de espacio)
+-- =======================================================
+
+-- AULAS (ID 8)
+(8, 29), (8, 32), (8, 33), (8, 35), (8, 36), (8, 37), (8, 38), (8, 39), (8, 40), (8, 412), (8, 42), (8, 43), (8, 44), (8, 45), (8, 46), (8, 48), (8, 50), (8, 53), (8, 54), (8, 55), (8, 58), (8, 66), (8, 67), (8, 72), (8, 73), (8, 74), (8, 79), (8, 80), (8, 83), (8, 94), (8, 102), (8, 103), (8, 104), (8, 111), (8, 115), (8, 121), (8, 122), (8, 123), (8, 125), (8, 133), (8, 134), (8, 135),
+
+-- LABORATORIOS (ID 9)
+(9, 30), (9, 31), (9, 34), (9, 41), (9, 412), (9, 42), (9, 43), (9, 46), (9, 61), (9, 613), (9, 70), (9, 89), (9, 96), (9, 99), (9, 106), (9, 109), (9, 112), (9, 113), (9, 114), (9, 137), (9, 138), (9, 1381),
+
+-- OFICINAS Y ADMINISTRACIÓN (ID 11)
+(11, 1), (11, 4), (11, 6), (11, 9), (11, 10), (11, 11), (11, 12), (11, 14), (11, 15), (11, 28), (11, 492), (11, 56), (11, 612), (11, 75), (11, 81), (11, 82), (11, 90), (11, 93), (11, 107), (11, 116), (11, 118), (11, 120), (11, 136),
+
+-- BAÑOS (ID 12)
+(12, 7), (12, 1111), (12, 1112), (12, 1113), (12, 1114), (12, 1115), (12, 1116),
+
+-- ALIMENTACIÓN Y DESCANSO (ID 13)
+(13, 23), (13, 27), (13, 271),
+
+-- ESTUDIO Y LECTURA (ID 10)
+(10, 18), (10, 68), (10, 110),
+
+-- AUDITORIOS Y EVENTOS (ID 15)
+(15, 5), (15, 27), (15, 101),
+
+-- DEPORTES Y EXTERIORES (ID 16)
+(16, 139), (16, 140), (16, 141), (16, 142), (16, 44443),
+
+-- SERVICIOS AL ESTUDIANTE / VARIOS (ID 14)
+(14, 8), (14, 13), (14, 17), (14, 47), (14, 491), (14, 51), (14, 86), (14, 108);
+
 
 -- 3.6. Insertar Actividades (Con IDs de espacio actualizados)
 INSERT INTO actividad (nombre, descripcion, fecha, hora_inicio, hora_fin, id_espacio, id_evento) VALUES 
