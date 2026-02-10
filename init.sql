@@ -155,6 +155,7 @@ INSERT INTO espacio (id, nombre, descripcion, imagen, capacidad) VALUES
 (73, 'aula 102', 'Aula destinada al dictado de clases teóricas y prácticas.', '73.webp', 40),
 (74, 'aula 101', 'Aula destinada al dictado de clases teóricas y prácticas.', '74.webp', 40),
 (75, 'departamento de salud', 'Oficina administrativa.', '75.webp', 5),
+(76, 'deposito de servicio', 'Espacio de la facultad.', '76.webp', 0),
 
 (78, 'gabinete', 'Espacio de la facultad.', '78.webp', 0),
 (79, 'aula 113', 'Aula destinada al dictado de clases teóricas y prácticas.', '79.webp', 40),
@@ -230,30 +231,30 @@ INSERT INTO espacio (id, nombre, descripcion, imagen, capacidad) VALUES
 -- 3.2. Insertar Categorías
 INSERT INTO categoria (nombre, color) VALUES 
 -- Especialidades de la Facultad (Prioritarias)
-('Civil', '#0e8341'), --1
-('Mecánica', '#267e7c'),--2
-('Química', '#926d29'),--3
-('Básicas', '#8b181b'),--4
-('Industrial', '#c05029'),--5
-('Sistemas', '#4579b0'),--6
-('Eléctrica', '#cc3e45'),--7
+('Civil', '#0e8341'), -- 1
+('Mecánica', '#267e7c'), -- 2
+('Química', '#926d29'), -- 3
+('Básicas', '#8b181b'), -- 4
+('Industrial', '#c05029'), -- 5
+('Sistemas', '#4579b0'), -- 6
+('Eléctrica', '#cc3e45'), -- 7
 
 -- Espacios Académicos y de Estudio
-('Aulas', '#6610f2'),   --8             
-('Laboratorios e Investigación', '#6f42c1'), --9
-('Estudio y Lectura', '#20c997'),    --10 
+('Aulas', '#6610f2'), -- 8
+('Laboratorios e Investigación', '#6f42c1'), -- 9
+('Estudio y Lectura', '#20c997'), -- 10
 
 -- Administrativo y Gestión
-('Oficinas y Administración', '#495057'),--11
+('Oficinas y Administración', '#495057'), -- 11
 
 -- Servicios e Instalaciones
-('Baños y Sanitarios', '#0dcaf0'),    --12
-('Alimentación y Descanso', '#fd7e14'),--13
-('Servicios al Estudiante', '#ffc107'),--14
+('Baños y Sanitarios', '#0dcaf0'), -- 12
+('Alimentación y Descanso', '#fd7e14'), -- 13
+('Servicios al Estudiante', '#ffc107'), -- 14
 
 -- Otros espacios
-('Auditorios y Eventos', '#d63384'),  --15
-('Deportes y Exteriores', '#7cb342');  --16
+('Auditorios y Eventos', '#d63384'), -- 15
+('Deportes y Exteriores', '#7cb342'); -- 16
 
 
 
@@ -271,7 +272,6 @@ INSERT INTO evento (nombre, descripcion, fecha_inicio, fecha_fin, id_espacio) VA
 ('Hackathon 2026', 'Competición de programación de 48 horas.', '2026-12-01 18:00:00', '2026-12-03 18:00:00', 27); -- SUM
 
 -- 3.5. Insertar Categoría x Espacio
-I-- 3.5. Insertar Categoría x Espacio
 INSERT INTO categoriaxespacio (id_categoria, id_espacio) VALUES 
 
 -- =======================================================
