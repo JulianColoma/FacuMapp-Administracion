@@ -155,7 +155,6 @@ INSERT INTO espacio (id, nombre, descripcion, imagen, capacidad) VALUES
 (73, 'aula 102', 'Aula destinada al dictado de clases teóricas y prácticas.', '73.webp', 40),
 (74, 'aula 101', 'Aula destinada al dictado de clases teóricas y prácticas.', '74.webp', 40),
 (75, 'departamento de salud', 'Oficina administrativa.', '75.webp', 5),
-(76, 'deposito de servicio', 'Espacio de la facultad.', '76.webp', 0),
 
 (78, 'gabinete', 'Espacio de la facultad.', '78.webp', 0),
 (79, 'aula 113', 'Aula destinada al dictado de clases teóricas y prácticas.', '79.webp', 40),
