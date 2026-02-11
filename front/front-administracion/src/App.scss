@@ -904,12 +904,15 @@ body {
 
 .evento-card-description {
   color: #64748b;
-  line-height: 1.6;
-  font-size: 0.95rem;
+  line-height: 1.5;
+  font-size: 0.9rem;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  max-height: 1.35rem;
 }
 
 .evento-card-dates {
