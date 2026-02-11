@@ -33,11 +33,12 @@ export default function Eventos() {
   }, []);
 
   const isEventoPast = (evento) => {
-    const endValue = evento?.fecha_fin || evento?.fecha_inicio;
+    const endValue = evento?.fecha_fin;
     if (!endValue) return false;
-    const datePart = String(endValue).split("T")[0];
-    const endDate = new Date(`${datePart}T23:59:59`);
-    return endDate < new Date();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const endDate = new Date(endValue);
+    return endDate < today;
   };
 
   const handleDelete = async (id) => {

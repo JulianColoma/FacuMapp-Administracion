@@ -18,4 +18,8 @@ export const EventoSchema = z.object({
   .refine((data) => data.fecha_fin >= data.fecha_inicio, {
     message: "La fecha de fin no puede ser anterior a la fecha de inicio",
     path: ["fecha_fin"],
+  })
+  .refine((data) => data.fecha_fin >= new Date(), {
+    message: "La fecha de fin no puede ser anterior a la fecha actual",
+    path: ["fecha_fin"],
   });

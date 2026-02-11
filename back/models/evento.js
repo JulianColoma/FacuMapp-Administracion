@@ -9,11 +9,8 @@ export class EventoModel {
       FROM evento e 
       LEFT JOIN espacio es ON e.id_espacio = es.id`;
     
-    
     if (upcoming === 'true' || upcoming === true) {
-     
-      q += ` WHERE e.fecha_inicio >= NOW()`; 
-     
+      q += ` WHERE e.fecha_fin >= CURDATE()`;
     }
 
     const eventos = await query(q);
