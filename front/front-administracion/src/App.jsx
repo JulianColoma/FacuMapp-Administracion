@@ -55,7 +55,10 @@ const AppContent = () => {
           {/* Sidebar */}
           <div className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
             <div className="sidebar-header">
-              <h4 className="sidebar-title">FacuMapp</h4>
+              <div className="sidebar-brand">
+                <img className="sidebar-logo" src="/images/UTN_logo.jpg" alt="UTN" />
+                <h4 className="sidebar-title">FacuMapp</h4>
+              </div>
               <button className="btn-close btn-close-white d-lg-none" onClick={closeSidebar}></button>
             </div>
             <nav className="sidebar-nav">
