@@ -268,7 +268,11 @@ INSERT INTO users (nombre, contrasena, administrador) VALUES
 INSERT INTO evento (nombre, descripcion, fecha_inicio, fecha_fin, id_espacio) VALUES 
 ('Semana de la Innovación', 'Evento anual sobre nuevas tecnologías y startups.', '2025-10-10 09:00:00', '2025-10-15 18:00:00', 27), -- SUM
 ('Festival de Otoño', 'Celebración cultural y artística.', '2025-11-05 10:00:00', '2025-11-07 22:00:00', 141), -- Paseo
-('Hackathon 2026', 'Competición de programación de 48 horas.', '2026-12-01 18:00:00', '2026-12-03 18:00:00', 27); -- SUM
+('Hackathon 2026', 'Competición de programación de 48 horas.', '2026-12-01 18:00:00', '2026-12-03 18:00:00', 27), -- SUM
+('Encuentro Docente', 'Encuentro para intercambio de prácticas docentes.', '2026-05-01 09:00:00', '2026-05-10 18:00:00', 27),
+('Jornada Ambiental', 'Actividades de concientización y limpieza.', '2026-04-22 09:00:00', '2026-04-22 17:00:00', 139),
+('Feria de Tecnología', 'Exposición de proyectos y demostraciones.', '2026-06-15 10:00:00', '2026-06-17 20:00:00', 101),
+('Curso de Ingreso 2026', 'Curso de ingreso para nuevos estudiantes: charlas, talleres y exámenes de nivelación.', '2026-02-02 09:00:00', '2026-02-27 18:00:00', 27);
 
 -- 3.5. Insertar Categoría x Espacio
 INSERT INTO categoriaxespacio (id_categoria, id_espacio) VALUES 
@@ -340,3 +344,35 @@ INSERT INTO actividad (nombre, descripcion, fecha, hora_inicio, hora_fin, id_esp
 ('Concierto al Atardecer', 'Música en vivo para cerrar el día.', '2025-11-05', '19:00:00', '21:00:00', 141, 2), -- Paseo
 ('Inicio del Hackathon', 'Formación de equipos y anuncio del reto.', '2026-12-01', '18:00:00', '20:00:00', 27, 3), -- SUM
 ('Mentoria de Proyectos', 'Sesión de ayuda con expertos.', '2026-12-02', '10:00:00', '12:00:00', 29, 3); -- Aula 61
+
+-- Actividades para Encuentro Docente (evento id 4)
+INSERT INTO actividad (nombre, descripcion, fecha, hora_inicio, hora_fin, id_espacio, id_evento) VALUES
+('Apertura Encuentro', 'Ceremonia de apertura y bienvenida.', '2026-05-01', '09:00:00', '10:30:00', 27, 4),
+('Taller Metodologías', 'Taller práctico sobre metodologías activas.', '2026-05-03', '14:00:00', '17:00:00', 30, 4),
+('Panel Innovación', 'Panel de discusión con docentes invitados.', '2026-05-06', '10:00:00', '12:00:00', 29, 4),
+('Clausura y Entrega de Certificados', 'Cierre del encuentro.', '2026-05-10', '17:00:00', '18:00:00', 101, 4);
+
+-- Actividades para Jornada Ambiental (evento id 5)
+INSERT INTO actividad (nombre, descripcion, fecha, hora_inicio, hora_fin, id_espacio, id_evento) VALUES
+('Limpieza y Voluntariado', 'Acciones de limpieza comunitaria.', '2026-04-22', '09:00:00', '12:00:00', 139, 5),
+('Charla Ambiental', 'Conferencia sobre cuidado ambiental.', '2026-04-22', '14:00:00', '16:00:00', 68, 5);
+
+-- Actividades para Feria de Tecnología (evento id 6) 
+INSERT INTO actividad (nombre, descripcion, fecha, hora_inicio, hora_fin, id_espacio, id_evento) VALUES
+('Demostraciones y Stands', 'Presentaciones de proyectos tecnológicos.', '2026-06-15', '10:00:00', '13:00:00', 101, 6),
+('Competencia de Prototipos', 'Muestra y evaluación de prototipos.', '2026-06-16', '15:00:00', '18:00:00', 30, 6),
+('Ceremonia de Premiación', 'Entrega de premios y cierre.', '2026-06-17', '19:00:00', '20:00:00', 27, 6);
+
+-- Actividades para Curso de Ingreso 2026 (evento id 7)
+INSERT INTO actividad (nombre, descripcion, fecha, hora_inicio, hora_fin, id_espacio, id_evento) VALUES
+('Apertura y Bienvenida', 'Presentación del curso, normas y bienvenida de autoridades.', '2026-02-02', '09:30:00', '11:00:00', 27, 7),
+('Presentación de Servicios y Trámites', 'Información sobre inscripciones, becas y trámites administrativos.', '2026-02-03', '10:00:00', '11:30:00', 14, 7),
+('Biblioteca y Recursos de Estudio', 'Recorrido por la biblioteca y presentación de recursos de estimulación académica.', '2026-02-04', '14:00:00', '15:30:00', 68, 7),
+('Introducción a la Vida Universitaria', 'Charla sobre metodologías de estudio y expectativas académicas.', '2026-02-05', '10:00:00', '12:00:00', 101, 7),
+('Taller de Matemáticas - Nivelación', 'Repaso de conceptos claves: álgebra, trigonometría y resolución de problemas.', '2026-02-08', '09:00:00', '12:00:00', 29, 7),
+('Taller de Física Conceptual', 'Sesión práctica sobre nociones básicas de mecánica y electricidad.', '2026-02-10', '14:00:00', '17:00:00', 31, 7),
+('Taller de Programación y Herramientas', 'Introducción a entornos de programación y herramientas colaborativas.', '2026-02-12', '14:00:00', '17:00:00', 30, 7),
+('Examen de Nivelación - Matemáticas', 'Evaluación de conocimientos matemáticos para ubicaciones de grupo.', '2026-02-22', '09:00:00', '12:00:00', 32, 7),
+('Examen de Nivelación - Física', 'Evaluación de conocimientos de física básica.', '2026-02-23', '09:00:00', '12:00:00', 33, 7),
+('Examen de Programación', 'Evaluación práctica de programación y lógica.', '2026-02-24', '14:00:00', '17:00:00', 102, 7),
+('Clausura y Entrega de Certificados', 'Cierre del curso y entrega de certificados de participación.', '2026-02-27', '17:00:00', '18:00:00', 27, 7);
