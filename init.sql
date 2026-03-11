@@ -142,9 +142,7 @@ INSERT INTO espacio (id, nombre, descripcion, imagen, capacidad) VALUES
 (612, 'Dirección', 'Oficina administrativa.', '612.webp', 5),
 (613, 'Laboratorios de Mecánica', 'Laboratorio equipado para prácticas e investigación.', '613.webp', 20),
 (62, 'Cursos YPF', 'Espacio de la facultad.', '62.webp', 0),
-
 (64, 'Mantenimiento', 'Espacio de la facultad.', '64.webp', 0),
-
 (66, 'Aula 91', 'Aula destinada al dictado de clases teóricas y prácticas.', '66.webp', 40),
 (67, 'Aula 92', 'Aula destinada al dictado de clases teóricas y prácticas.', '67.webp', 40),
 (68, 'Biblioteca', 'Espacio de estudio y lectura.', '68.webp', 30),
@@ -155,7 +153,6 @@ INSERT INTO espacio (id, nombre, descripcion, imagen, capacidad) VALUES
 (73, 'Aula 102', 'Aula destinada al dictado de clases teóricas y prácticas.', '73.webp', 40),
 (74, 'Aula 101', 'Aula destinada al dictado de clases teóricas y prácticas.', '74.webp', 40),
 (75, 'Departamento de Salud', 'Oficina administrativa.', '75.webp', 5),
-
 (78, 'Gabinete', 'Espacio de la facultad.', '78.webp', 0),
 (79, 'Aula 113', 'Aula destinada al dictado de clases teóricas y prácticas.', '79.webp', 40),
 (80, 'Aula 112', 'Aula destinada al dictado de clases teóricas y prácticas.', '80.webp', 40),
@@ -196,7 +193,6 @@ INSERT INTO espacio (id, nombre, descripcion, imagen, capacidad) VALUES
 (114, 'Laboratorio de Eficiencia Energética Aplicada', 'Laboratorio equipado para prácticas e investigación.', '114.webp', 20),
 (115, 'aula 21', 'Aula destinada al dictado de clases teóricas y prácticas.', '115.webp', 40),
 (116, 'Departamento de Ingeniería Civil - Sala del Consejo Sala de Profesores', 'Oficina administrativa.', '116.webp', 5),
-
 (118, 'Oficina', 'Oficina administrativa.', '118.webp', 5),
 (119, 'Gabinete de Computadoras', 'Espacio de la facultad.', '119.webp', 0),
 (120, 'Oficina', 'Oficina administrativa.', '120.webp', 5),
@@ -205,7 +201,6 @@ INSERT INTO espacio (id, nombre, descripcion, imagen, capacidad) VALUES
 (123, 'Aula 24', 'Aula destinada al dictado de clases teóricas y prácticas.', '123.webp', 40),
 (125, 'Aula 25', 'Aula destinada al dictado de clases teóricas y prácticas.', '125.webp', 40),
 (126, 'LEMAC', 'Espacio de la facultad.', '126.webp', 0),
-
 (133, 'Aula', 'Aula destinada al dictado de clases teóricas y prácticas.', '133.webp', 40),
 (134, 'Aula 12', 'Aula destinada al dictado de clases teóricas y prácticas.', '134.webp', 40),
 (135, 'Aula 14', 'Aula destinada al dictado de clases teóricas y prácticas.', '135.webp', 40),
@@ -217,15 +212,66 @@ INSERT INTO espacio (id, nombre, descripcion, imagen, capacidad) VALUES
 (140, 'Bicicletero', 'Espacio exterior.', '140.webp', 0),
 (141, 'Paseo de las Ingenierías', 'Espacio exterior.', '141.webp', 0),
 (142, 'Parada de Colectivo', 'Espacio exterior.', '142.webp', 0),
-
 (1111, 'Baño', 'Instalaciones sanitarias.', '1111.webp', 2),
 (1112, 'Baño', 'Instalaciones sanitarias.', '1112.webp', 4),
 (1113, 'Baño', 'Instalaciones sanitarias.', '1113.webp', 4),
 (1114, 'Baño', 'Instalaciones sanitarias.', '1114.webp', 4),
 (1115, 'Baño', 'Instalaciones sanitarias.', '1115.webp', 4),
 (1116, 'Baño', 'Instalaciones sanitarias.', '1116.webp', 4),
+(44443, 'Entrada Principal', 'Acceso principal a la facultad.', '44443.webp', 0),
 
-(44443, 'Entrada Principal', 'Acceso principal a la facultad.', '44443.webp', 0);
+-- >>> NUEVOS ESPACIOS AGREGADOS <<<
+(143, 'Secretaria de Cultura / UVT Unidad de Vinculacion Tecnologica / OPSTA observatorio de politicas sociales, territoriales y ambientales', 'Oficina administrativa.', '143.webp', 5),
+(144, 'Secretaria de TIC', 'Oficina administrativa.', '144.webp', 5),
+(145, 'Secretaría de Consejo Directivo', 'Oficina administrativa.', '145.webp', 5),
+(146, 'Secretaría de Ciencia, Tecnología y Posgrado', 'Oficina administrativa.', '146.webp', 5),
+(147, 'Direccion de Administracion', 'Oficina administrativa.', '147.webp', 5),
+(148, 'Secretaría Administrativa', 'Oficina administrativa.', '148.webp', 5),
+(149, 'Decanato', 'Oficina administrativa.', '149.webp', 5),
+(150, 'Espacio no interactivo', 'Este espacio no debería ser clickeable.', '150.webp', 0),
+(151, 'Office', 'Espacio de la facultad.', '151.webp', 0),
+(152, 'Secretaria de Infraestructura', 'Oficina administrativa.', '152.webp', 5),
+(153, 'CIDAE', 'Espacio de la facultad.', '153.webp', 0),
+(154, 'Direccion Departamento de Ingenieria Industrial', 'Oficina administrativa.', '154.webp', 5),
+(155, 'GETyP', 'Espacio de la facultad.', '155.webp', 0),
+(156, 'Laboratorio de Simulacion de Procesos Empresariales', 'Laboratorio equipado para prácticas e investigación.', '156.webp', 20),
+(157, 'Salon de Actos - Presidente Juan Domingo Perón', 'Espacio para eventos y conferencias.', '157.webp', 100),
+(158, 'Auditorio 1 de Quimica', 'Espacio para eventos y conferencias.', '158.webp', 100),
+(159, 'Auditorio 2 de Quimica', 'Espacio para eventos y conferencias.', '159.webp', 100),
+(160, 'Laboratorio de Quimica Basica', 'Laboratorio equipado para prácticas e investigación.', '160.webp', 20),
+(161, 'Espacio sin asignar', 'Espacio de la facultad.', '161.webp', 0),
+(162, 'Gabinete de Tecnología y Simulación de Procesos', 'Espacio de la facultad.', '162.webp', 0),
+(163, 'Aula de Simulación', 'Aula destinada al dictado de clases teóricas y prácticas.', '163.webp', 40),
+(164, 'Sala de Profesores', 'Espacio de la facultad.', '164.webp', 0),
+(165, 'Direccion Departamento de Ingenieria Química', 'Oficina administrativa.', '165.webp', 5),
+(166, 'Secretaria Departamento de Ingenieria Química', 'Oficina administrativa.', '166.webp', 5),
+(167, 'LINES', 'Espacio de la facultad.', '167.webp', 0),
+(168, 'LINSI', 'Espacio de la facultad.', '168.webp', 0),
+(169, 'CODAPLI', 'Espacio de la facultad.', '169.webp', 0),
+(170, 'CODAPLI', 'Espacio de la facultad.', '170.webp', 0),
+(171, 'GIDAS', 'Espacio de la facultad.', '171.webp', 0),
+(172, 'Espacio no interactivo', 'Este espacio no debería ser clickeable.', '172.webp', 0),
+(173, 'Pecera de Sistemas', 'Espacio de estudio y lectura.', '173.webp', 30),
+(174, 'LINA', 'Espacio de la facultad.', '174.webp', 0),
+(175, 'Aula Posgrado 121', 'Aula destinada al dictado de clases teóricas y prácticas.', '175.webp', 40),
+(176, 'Aula Posgrado 128', 'Aula destinada al dictado de clases teóricas y prácticas.', '176.webp', 40),
+(177, 'Aula Posgrado 122', 'Aula destinada al dictado de clases teóricas y prácticas.', '177.webp', 40),
+(178, 'Aula Posgrado 127', 'Aula destinada al dictado de clases teóricas y prácticas.', '178.webp', 40),
+(179, 'Aula Posgrado 123', 'Aula destinada al dictado de clases teóricas y prácticas.', '179.webp', 40),
+(180, 'Aula Posgrado 126', 'Aula destinada al dictado de clases teóricas y prácticas.', '180.webp', 40),
+(181, 'Aula Posgrado 124', 'Aula destinada al dictado de clases teóricas y prácticas.', '181.webp', 40),
+(182, 'Aula Posgrado 125', 'Aula destinada al dictado de clases teóricas y prácticas.', '182.webp', 40),
+(183, 'Auditorio Islas Malvinas', 'Espacio para eventos y conferencias.', '183.webp', 100),
+(184, 'Aula 135', 'Aula destinada al dictado de clases teóricas y prácticas.', '184.webp', 40),
+(185, 'Aula 134', 'Aula destinada al dictado de clases teóricas y prácticas.', '185.webp', 40),
+(186, 'Aula 133', 'Aula destinada al dictado de clases teóricas y prácticas.', '186.webp', 40),
+(187, 'Aula 131', 'Aula destinada al dictado de clases teóricas y prácticas.', '187.webp', 40),
+(188, 'Aula 132', 'Aula destinada al dictado de clases teóricas y prácticas.', '188.webp', 40),
+(1117, 'Baño', 'Instalaciones sanitarias.', '1117.webp', 4),
+(1118, 'Baño', 'Instalaciones sanitarias.', '1118.webp', 4),
+(1119, 'Baño', 'Instalaciones sanitarias.', '1119.webp', 4),
+(11110, 'Baño', 'Instalaciones sanitarias.', '11110.webp', 4),
+(11111, 'Baño', 'Instalaciones sanitarias.', '11111.webp', 4);
 
 -- 3.2. Insertar Categorías
 INSERT INTO categoria (nombre, color) VALUES 
@@ -254,8 +300,6 @@ INSERT INTO categoria (nombre, color) VALUES
 -- Otros espacios
 ('Auditorios y Eventos', '#d63384'), -- 15
 ('Deportes y Exteriores', '#7cb342'); -- 16
-
-
 
 -- 3.3. Insertar Usuarios
 INSERT INTO users (nombre, contrasena, administrador) VALUES 
@@ -298,7 +342,6 @@ INSERT INTO categoriaxespacio (id_categoria, id_espacio) VALUES
 -- SISTEMAS (ID 6) 
 (6, 75), (6, 78), (6, 79), (6, 80), (6, 81), (6, 82), (6, 83), (6, 84), (6, 85),
 
-
 -- ELECTRICA (ID 7) -> Rango 102-114
 (7, 102), (7, 103), (7, 104), (7, 105), (7, 106), (7, 107), (7, 108), (7, 109), (7, 110), (7, 111), (7, 112), (7, 1121), (7, 113), (7, 114),
 
@@ -335,7 +378,6 @@ INSERT INTO categoriaxespacio (id_categoria, id_espacio) VALUES
 
 -- SERVICIOS AL ESTUDIANTE / VARIOS (ID 14)
 (14, 8), (14, 13), (14, 17), (14, 47), (14, 491), (14, 51), (14, 86), (14, 108);
-
 
 -- 3.6. Insertar Actividades (Con IDs de espacio actualizados)
 INSERT INTO actividad (nombre, descripcion, fecha, hora_inicio, hora_fin, id_espacio, id_evento) VALUES 
