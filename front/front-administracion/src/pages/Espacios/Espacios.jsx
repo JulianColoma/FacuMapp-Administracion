@@ -686,7 +686,7 @@ export default function Espacios() {
       </div>
 
       <div className="row">
-        <div className="col-lg-7 mb-4">
+        <div className="col-12 mb-4">
           <div className="grid-container">
             {paginatedEspacios.map((esp) => {
               const imageUrl = esp.imagen ? `${API_URL}/uploads/${esp.imagen}` : null;
@@ -768,7 +768,7 @@ export default function Espacios() {
           )}
         </div>
 
-        <div className="col-lg-5">
+        <div className="col-12">
           <div className="card p-3 border-0">
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h5 className="mb-0 text-muted">Mapa Interactivo</h5>

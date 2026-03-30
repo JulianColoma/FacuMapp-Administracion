@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   mysql:
-    image: mysql:8.0
+    image: mysql:5.7
     container_name: mapa_mysql
     restart: unless-stopped
     env_file:
@@ -41,7 +41,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       PORT: ${APP_PORT}
     ports:
-      - "${APP_PORT}:3000"
+      - "${APP_PORT}:${DOCKER_PORT}"
     volumes:
       - ./back:/app
       - /app/node_modules
@@ -58,7 +58,7 @@ services:
     container_name: mapa_frontend
     restart: unless-stopped
     ports:
-      - "5173:5173"
+      - "98:98"
     environment:
       - HOST=0.0.0.0
       - CHOKIDAR_USEPOLLING=true

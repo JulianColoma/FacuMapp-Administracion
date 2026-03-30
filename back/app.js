@@ -14,13 +14,14 @@ import { userRouter } from './routes/user.js';
 import { getUserData } from './middleware/user.js';
 
 // FIX para __dirname en ESModules
-const __filename = fileURLToPath(import.meta.url);
+const __filename = fileURLToPath(
+    import.meta.url);
 const __dirname = path.dirname(__filename);
 
 console.log('🚀 Servidor iniciando...');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.DOCKER_PORT || 3000;
 
 let corsOptions;
 
