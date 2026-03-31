@@ -1,10 +1,17 @@
 import {EventoSchema} from "../schemas/evento.js"
 import { EventoModel } from "../models/evento.js"
+import { parsePaginationParams } from "../utils/pagination.js";
 export class EventoController {
     static getAll = async (req, res) => {
         try{
-        const { upcoming } = req.query;
-        const eventos = await EventoModel.getAll(upcoming)
+        const { upcoming, search = "" } = req.query;
+        const { limit, cursorId } = parsePaginationParams(req.query);
+        const eventos = await EventoModel.getAll({
+            upcoming,
+            search,
+            limit,
+            cursorId
+        })
         res.json(eventos)
         } catch (error) {
             console.error(error);

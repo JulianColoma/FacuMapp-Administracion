@@ -8,10 +8,49 @@ export default function Usuarios() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const ITEMS_PER_PAGE = 6;
+  const [total, setTotal] = useState(0);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [cursorHistory, setCursorHistory] = useState([null]);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
+  const currentCursor = cursorHistory[currentPage - 1] ?? null;
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
+
+  useEffect(() => {
+    const fetchUsuarios = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const params = new URLSearchParams({ limit: String(ITEMS_PER_PAGE) });
+        const normalizedSearch = searchTerm.trim();
+        if (currentCursor) params.set("cursor", currentCursor);
+        if (normalizedSearch) params.set("search", normalizedSearch);
+
+        const response = await fetch(`${API_URL}/getuser?${params.toString()}`);
+        if (!response.ok) {
+          throw new Error("Error al obtener los usuarios");
+        }
+
+        const data = await response.json();
+        setUsuarios(data.items ?? []);
+        setNextCursor(data.nextCursor ?? null);
+        setTotal(data.total ?? 0);
+      } catch (fetchError) {
+        setError(fetchError.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsuarios();
+  }, [currentCursor, searchTerm]);
+
+  useEffect(() => {
+    setCursorHistory([null]);
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const handleDelete = async (id) => {
     const result = await Swal.fire({
@@ -22,7 +61,7 @@ export default function Usuarios() {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar"
+      cancelButtonText: "Cancelar",
     });
 
     if (result.isConfirmed) {
@@ -47,43 +86,23 @@ export default function Usuarios() {
           icon: "success",
           title: "¡Eliminado!",
           text: "El usuario ha sido eliminado",
-          confirmButtonText: "Aceptar"
+          confirmButtonText: "Aceptar",
         });
+
         setUsuarios((prev) => prev.filter((u) => u.id !== id));
-      } catch (error) {
+        setTotal((prev) => Math.max(prev - 1, 0));
+      } catch (deleteError) {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: error.message.includes("permisos") ? error.message : "Error al eliminar el usuario",
-          confirmButtonText: "Aceptar"
+          text: deleteError.message.includes("permisos")
+            ? deleteError.message
+            : "Error al eliminar el usuario",
+          confirmButtonText: "Aceptar",
         });
       }
     }
   };
-
-  useEffect(() => {
-    const fetchUsuarios = async () => {
-      try {
-        const response = await fetch(`${API_URL}/getuser`);
-        if (!response.ok) {
-          throw new Error("Error al obtener los usuarios");
-        }
-        const data = await response.json();
-        setUsuarios(data);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsuarios();
-  }, []);
-
-  const filteredUsuarios = usuarios.filter((u) =>
-    u.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (u.administrador ? "administrador" : "usuario").includes(searchTerm.toLowerCase())
-  );
 
   if (loading) {
     return (
@@ -118,7 +137,7 @@ export default function Usuarios() {
             Gestión de Usuarios
           </h1>
           <p className="text-muted mb-0">
-            {usuarios.length} {usuarios.length === 1 ? "usuario registrado" : "usuarios registrados"}
+            {total} {total === 1 ? "usuario registrado" : "usuarios registrados"}
           </p>
         </div>
         <Link to="/add-user" className="btn btn-success">
@@ -134,14 +153,12 @@ export default function Usuarios() {
             className="form-control form-control-custom"
             placeholder="Buscar usuarios..."
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      {filteredUsuarios.length === 0 ? (
+      {usuarios.length === 0 ? (
         <div className="custom-card text-center py-5">
           <i className="bi bi-people display-1 text-muted mb-3"></i>
           <h4 className="text-muted">
@@ -169,7 +186,7 @@ export default function Usuarios() {
                 </tr>
               </thead>
               <tbody>
-                {filteredUsuarios.map((u) => (
+                {usuarios.map((u) => (
                   <tr key={u.id}>
                     <td className="py-3">
                       <div className="d-flex align-items-center gap-3">
@@ -200,6 +217,40 @@ export default function Usuarios() {
               </tbody>
             </table>
           </div>
+
+          {totalPages > 1 && (
+            <div className="pagination-futuristic mt-4">
+              <button
+                className="pagination-btn prev"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => p - 1)}
+              >
+                <i className="bi bi-chevron-left"></i>
+                <span>Anterior</span>
+              </button>
+
+              <div className="pagination-indicator">
+                {currentPage} / {totalPages}
+              </div>
+
+              <button
+                className="pagination-btn next"
+                disabled={!nextCursor}
+                onClick={() => {
+                  if (!nextCursor) return;
+                  setCursorHistory((prev) => {
+                    const nextIndex = currentPage;
+                    if (prev[nextIndex] === nextCursor) return prev;
+                    return [...prev.slice(0, nextIndex), nextCursor];
+                  });
+                  setCurrentPage((p) => p + 1);
+                }}
+              >
+                <span>Siguiente</span>
+                <i className="bi bi-chevron-right"></i>
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

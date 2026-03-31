@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { API_URL } from "../../config";
 import "./EspaciosMap.scss";
 
@@ -449,7 +449,10 @@ const ZONES = [
 
 export default function Espacios() {
   const [espacios, setEspacios] = useState([]);
+  const [mapEspacios, setMapEspacios] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mapLoading, setMapLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -460,6 +463,8 @@ export default function Espacios() {
   const svgRef = useRef(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const [showMapView, setShowMapView] = useState(Boolean(location.state?.showMapView));
 
   const handleZoom = useCallback((direction) => {
     setZoomLevel((prev) => {
@@ -481,26 +486,151 @@ export default function Espacios() {
     zonaStroke: "#d1d5db",
     zonaHover: "#667eea",
   };
-  const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 6;
+  const [total, setTotal] = useState(0);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [cursorHistory, setCursorHistory] = useState([null]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageCacheRef = useRef(new Map());
+  const prefetchedPagesRef = useRef(new Set());
+  const currentCursor = cursorHistory[currentPage - 1] ?? null;
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
 
-  const fetchEspacios = async () => {
+  const getPageCacheKey = useCallback((cursor = null, search = "", category = "") => {
+    return JSON.stringify({
+      cursor: cursor ?? null,
+      search: search.trim(),
+      category: category || "",
+    });
+  }, []);
+
+  const fetchPageData = useCallback(async (cursor = null, search = "", category = "") => {
+    const params = new URLSearchParams({ limit: String(ITEMS_PER_PAGE) });
+    const normalizedSearchValue = search.trim();
+    if (cursor) params.set("cursor", cursor);
+    if (normalizedSearchValue) params.set("search", normalizedSearchValue);
+    if (category) params.set("category", category);
+
+    const response = await fetch(`${API_URL}/espacio?${params.toString()}`);
+    if (!response.ok) throw new Error("Error al obtener los espacios");
+    return response.json();
+  }, []);
+
+  const prefetchEspacios = useCallback(async (cursor = null, search = "", category = "") => {
+    const cacheKey = getPageCacheKey(cursor, search, category);
+    if (!cursor || pageCacheRef.current.has(cacheKey) || prefetchedPagesRef.current.has(cacheKey)) {
+      return;
+    }
+
+    prefetchedPagesRef.current.add(cacheKey);
+
     try {
-      const response = await fetch(`${API_URL}/espacio`);
-      if (!response.ok) throw new Error("Error al obtener los espacios");
-      const data = await response.json();
-      setEspacios(data);
+      const data = await fetchPageData(cursor, search, category);
+      pageCacheRef.current.set(cacheKey, {
+        items: data.items ?? [],
+        nextCursor: data.nextCursor ?? null,
+        total: data.total ?? 0,
+      });
+    } catch (_error) {
+      prefetchedPagesRef.current.delete(cacheKey);
+    }
+  }, [fetchPageData, getPageCacheKey]);
+
+  const fetchEspacios = useCallback(async (cursor = null, search = "", category = "") => {
+    const cacheKey = getPageCacheKey(cursor, search, category);
+    const cachedPage = pageCacheRef.current.get(cacheKey);
+
+    if (cachedPage) {
+      setError(null);
+      setEspacios(cachedPage.items);
+      setNextCursor(cachedPage.nextCursor);
+      setTotal(cachedPage.total);
+      setLoading(false);
+
+      if (cachedPage.nextCursor) {
+        prefetchEspacios(cachedPage.nextCursor, search, category);
+      }
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await fetchPageData(cursor, search, category);
+      const pageData = {
+        items: data.items ?? [],
+        nextCursor: data.nextCursor ?? null,
+        total: data.total ?? 0,
+      };
+
+      pageCacheRef.current.set(cacheKey, pageData);
+      setEspacios(pageData.items);
+      setNextCursor(pageData.nextCursor);
+      setTotal(pageData.total);
+
+      if (pageData.nextCursor) {
+        prefetchEspacios(pageData.nextCursor, search, category);
+      }
     } catch (error) {
       setError(error.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchPageData, getPageCacheKey, prefetchEspacios]);
 
   useEffect(() => {
-    fetchEspacios();
+    fetchEspacios(currentCursor, searchTerm, selectedCategory);
+  }, [currentCursor, fetchEspacios, searchTerm, selectedCategory]);
+
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      try {
+        const response = await fetch(`${API_URL}/categoria`);
+        if (!response.ok) throw new Error("Error al obtener las categorias");
+        const data = await response.json();
+        setCategorias(Array.isArray(data) ? data : []);
+      } catch (fetchError) {
+        setError(fetchError.message);
+      }
+    };
+
+    fetchCategorias();
   }, []);
+
+  useEffect(() => {
+    if (!showMapView || mapEspacios.length > 0) return;
+
+    const fetchMapEspacios = async () => {
+      try {
+        setMapLoading(true);
+        let cursor = null;
+        let hasMore = true;
+        const collected = [];
+
+        while (hasMore) {
+          const params = new URLSearchParams({ limit: "50" });
+          if (cursor) params.set("cursor", cursor);
+
+          const response = await fetch(`${API_URL}/espacio?${params.toString()}`);
+          if (!response.ok) throw new Error("Error al obtener los espacios del mapa");
+
+          const data = await response.json();
+          collected.push(...(data.items ?? []));
+          cursor = data.nextCursor ?? null;
+          hasMore = Boolean(data.nextCursor);
+        }
+
+        setMapEspacios(collected);
+      } catch (_error) {
+        setMapEspacios([]);
+      } finally {
+        setMapLoading(false);
+      }
+    };
+
+    fetchMapEspacios();
+  }, [mapEspacios.length, showMapView]);
 
   useEffect(() => {
     const mapContainer = svgRef.current?.closest('.map-container');
@@ -510,15 +640,7 @@ export default function Espacios() {
     return () => mapContainer.removeEventListener('wheel', handleMouseWheel);
   }, [handleMouseWheel]);
 
-  const categoryMap = new Map();
-  espacios.forEach((esp) => {
-    (Array.isArray(esp.categorias) ? esp.categorias : []).forEach((cat) => {
-      if (!cat) return;
-      const key = cat.id != null ? String(cat.id) : String(cat.nombre || "");
-      if (key) categoryMap.set(key, cat);
-    });
-  });
-  const categoryOptions = Array.from(categoryMap.values()).sort((a, b) =>
+  const categoryOptions = [...categorias].sort((a, b) =>
     String(a.nombre || "").localeCompare(String(b.nombre || ""))
   );
   const selectedCategoryName = selectedCategory
@@ -531,34 +653,23 @@ export default function Espacios() {
 
   const normalizedSearch = searchTerm.trim().toLowerCase();
   const hasFilters = Boolean(normalizedSearch || selectedCategory);
-  const filteredEspacios = espacios.filter((esp) => {
-    const nombre = String(esp.nombre || "").toLowerCase();
-    const descripcion = String(esp.descripcion || "").toLowerCase();
-    const matchesSearch =
-      !normalizedSearch ||
-      nombre.includes(normalizedSearch) ||
-      descripcion.includes(normalizedSearch);
 
-    const matchesCategory =
-      !selectedCategory ||
-      (Array.isArray(esp.categorias) ? esp.categorias : []).some((cat) => {
-        const key = cat && cat.id != null ? String(cat.id) : String(cat?.nombre || "");
-        return key === selectedCategory;
-      });
+  useEffect(() => {
+    setCursorHistory([null]);
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory]);
 
-    return matchesSearch && matchesCategory;
-  });
-
-  const totalPages = Math.ceil(filteredEspacios.length / ITEMS_PER_PAGE);
-
-  const paginatedEspacios = filteredEspacios.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  useEffect(() => {
+    if (typeof location.state?.showMapView === "boolean") {
+      setShowMapView(location.state.showMapView);
+    }
+  }, [location.state]);
 
 
   const handleZoneClick = (zoneId) => {
-    navigate(`/edit-espacio/${zoneId}`);
+    navigate(`/edit-espacio/${zoneId}`, {
+      state: { returnToMap: true },
+    });
   };
 
   if (loading) return <div className="text-center py-5">Cargando...</div>;
@@ -572,7 +683,24 @@ export default function Espacios() {
         </h1>
       </div>
 
-      <div className="filters-bar mb-4">
+      <div className={`filters-bar mb-4 ${showMapView ? "is-map-mode" : ""}`}>
+        {showMapView ? (
+          <>
+            <div className="filters-map-summary">
+              <span className="filters-map-badge">Plano interactivo</span>
+            </div>
+            <button
+              type="button"
+              className={`filters-view-toggle ${showMapView ? "is-active" : ""}`}
+              onClick={() => setShowMapView((prev) => !prev)}
+              title={showMapView ? "Ver lista" : "Ver mapa"}
+              aria-label={showMapView ? "Ver lista" : "Ver mapa"}
+            >
+              <i className={`bi ${showMapView ? "bi-grid-1x2-fill" : "bi-map-fill"}`}></i>
+            </button>
+          </>
+        ) : (
+          <>
         <div className="filters-main">
           <div className="filters-field filters-search">
             <i className="bi bi-search"></i>
@@ -583,9 +711,17 @@ export default function Espacios() {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                setCurrentPage(1);
               }}
             />
+            <button
+              type="button"
+              className={`filters-view-toggle ${showMapView ? "is-active" : ""}`}
+              onClick={() => setShowMapView((prev) => !prev)}
+              title={showMapView ? "Ver lista" : "Ver mapa"}
+              aria-label={showMapView ? "Ver lista" : "Ver mapa"}
+            >
+              <i className={`bi ${showMapView ? "bi-grid-1x2-fill" : "bi-map-fill"}`}></i>
+            </button>
           </div>
           <div
             className="filters-category"
@@ -616,7 +752,6 @@ export default function Espacios() {
                 onClick={() => {
                   setSelectedCategory("");
                   setCategoryQuery("");
-                  setCurrentPage(1);
                 }}
               >
                 <i className="bi bi-x"></i>
@@ -631,7 +766,6 @@ export default function Espacios() {
                   onClick={() => {
                     setSelectedCategory("");
                     setCategoryQuery("");
-                    setCurrentPage(1);
                     setIsCategoryOpen(false);
                   }}
                 >
@@ -652,7 +786,6 @@ export default function Espacios() {
                       onClick={() => {
                         setSelectedCategory(value);
                         setCategoryQuery(cat.nombre || "");
-                        setCurrentPage(1);
                         setIsCategoryOpen(false);
                       }}
                     >
@@ -669,7 +802,7 @@ export default function Espacios() {
           </div>
         </div>
         <div className="filters-meta">
-          <span className="filters-count">{filteredEspacios.length} resultados</span>
+          <span className="filters-count">{total} resultados</span>
           <button
             type="button"
             className="filters-reset"
@@ -677,18 +810,21 @@ export default function Espacios() {
             onClick={() => {
               setSearchTerm("");
               setSelectedCategory("");
-              setCurrentPage(1);
+              setCategoryQuery("");
             }}
           >
             Limpiar
           </button>
         </div>
+          </>
+        )}
       </div>
 
       <div className="row">
+        {!showMapView && (
         <div className="col-12 mb-4">
           <div className="grid-container">
-            {paginatedEspacios.map((esp) => {
+            {espacios.map((esp) => {
               const imageUrl = esp.imagen ? `${API_URL}/uploads/${esp.imagen}` : null;
               return (
                 <div key={esp.id} className="custom-card">
@@ -696,6 +832,8 @@ export default function Espacios() {
                     <img
                       src={imageUrl || "/images/no-image.png"}
                       alt={esp.nombre}
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "https://placehold.co/600x400?text=Sin+Imagen";
@@ -757,8 +895,16 @@ export default function Espacios() {
 
               <button
                 className="pagination-btn next"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
+                disabled={!nextCursor}
+                onClick={() => {
+                  if (!nextCursor) return;
+                  setCursorHistory((prev) => {
+                    const nextIndex = currentPage;
+                    if (prev[nextIndex] === nextCursor) return prev;
+                    return [...prev.slice(0, nextIndex), nextCursor];
+                  });
+                  setCurrentPage((p) => p + 1);
+                }}
               >
                 <span>Siguiente</span>
                 <i className="bi bi-chevron-right"></i>
@@ -767,9 +913,16 @@ export default function Espacios() {
             </div>
           )}
         </div>
+        )}
 
+        {showMapView && (
         <div className="col-12">
-          <div className="card p-3 border-0">
+          <div className="map-view-shell">
+            <div className="map-view-intro">
+              <h5 className="mb-0">Mapa del edificio</h5>
+              <span className="map-view-badge">Vista mapa</span>
+            </div>
+            <div className="card p-3 border-0 map-view-card">
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h5 className="mb-0 text-muted">Mapa Interactivo</h5>
               <div className="zoom-controls">
@@ -797,6 +950,9 @@ export default function Espacios() {
                 </button>
               </div>
             </div>
+            {mapLoading ? (
+              <div className="map-loading-state">Cargando mapa...</div>
+            ) : (
             <div className="map-container">
               <svg
                 ref={svgRef}
@@ -809,7 +965,7 @@ export default function Espacios() {
                 <g id="Group 1">
                   <g transform={`translate(${-OFFSET_X} ${-OFFSET_Y})`}>
                     {ZONES.map((zone) => {
-                      const espacioData = espacios.find(
+                      const espacioData = mapEspacios.find(
                         (e) => String(e.id) === zone.id
                       );
                       const title = espacioData
@@ -878,8 +1034,11 @@ export default function Espacios() {
                 </g>
               </svg>
             </div>
+            )}
+            </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

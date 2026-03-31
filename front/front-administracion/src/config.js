@@ -1,1 +1,3 @@
-export const API_URL = 'https://facumappi.frlp.utn.edu.ar'
+const defaultApiUrl = 'http://localhost:3000';
+
+export const API_URL = import.meta.env.VITE_API_URL || defaultApiUrl;
