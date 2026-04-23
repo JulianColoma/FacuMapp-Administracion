@@ -45,9 +45,11 @@ export default function Espacios() {
 
   const COLORS = {
     paredes: "#2b2f3a",
-    zonaDefault: "#e5e7eb",
-    zonaStroke: "#d1d5db",
-    zonaHover: "#667eea",
+    zonaDefault: "rgba(33, 150, 243, 0.15)",
+    zonaStroke: "rgba(33, 150, 243, 0.35)",
+    zonaHover: "rgba(33, 150, 243, 0.3)",
+    pbReferenceFill: "#64748b",
+    pbReferenceStroke: "#475569",
   };
   const ITEMS_PER_PAGE = 6;
   const [total, setTotal] = useState(0);
@@ -59,6 +61,15 @@ export default function Espacios() {
   const currentCursor = cursorHistory[currentPage - 1] ?? null;
   const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
   const activeZones = FLOOR_ZONES[activeFloor] ?? FLOOR_ZONES[0] ?? [];
+  const showGroundReference = activeFloor !== 0;
+  const groundReferenceZones = FLOOR_ZONES[0] ?? [];
+
+  const findFloorForZone = useCallback((zoneId) => {
+    const normalizedZoneId = String(zoneId);
+    return FLOOR_OPTIONS.find((floor) =>
+      (FLOOR_ZONES[floor.id] ?? []).some((zone) => zone.id === normalizedZoneId)
+    )?.id ?? 0;
+  }, []);
 
 
   const getPageCacheKey = useCallback((cursor = null, search = "", category = "") => {
@@ -229,10 +240,23 @@ export default function Espacios() {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    if (!location.state?.showMapView) return;
+
+    if (typeof location.state?.activeFloor === "number") {
+      setActiveFloor(location.state.activeFloor);
+      return;
+    }
+
+    if (location.state?.editedSpaceId != null) {
+      setActiveFloor(findFloorForZone(location.state.editedSpaceId));
+    }
+  }, [findFloorForZone, location.state]);
+
 
   const handleZoneClick = (zoneId) => {
     navigate(`/edit-espacio/${zoneId}`, {
-      state: { returnToMap: true },
+      state: { returnToMap: true, activeFloor },
     });
   };
 
@@ -545,6 +569,35 @@ export default function Espacios() {
               >
                 <g id="Group 1">
                   <g transform={`translate(${-OFFSET_X} ${-OFFSET_Y})`}>
+                    {showGroundReference &&
+                      groundReferenceZones.map((zone) => {
+                        const commonReferenceProps = {
+                          key: `ground-reference-${zone.id}`,
+                          fill: zone.fill ?? COLORS.pbReferenceFill,
+                          stroke: zone.stroke ?? COLORS.pbReferenceStroke,
+                          strokeWidth: zone.strokeWidth ?? 1.5,
+                          style: {
+                            pointerEvents: "none",
+                          },
+                          opacity: 0.22,
+                        };
+
+                        if (zone.path) {
+                          return <path {...commonReferenceProps} d={zone.path} />;
+                        }
+
+                        return (
+                          <rect
+                            {...commonReferenceProps}
+                            x={zone.x}
+                            y={zone.y}
+                            width={zone.w}
+                            height={zone.h}
+                            rx={zone.r}
+                          />
+                        );
+                      })}
+
                     {activeZones.map((zone) => {
                       const espacioData = mapEspacios.find(
                         (e) => String(e.id) === zone.id

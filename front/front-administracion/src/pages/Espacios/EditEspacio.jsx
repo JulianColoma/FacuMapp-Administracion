@@ -20,10 +20,11 @@ export default function EditEspacio() {
   const navigate = useNavigate();
   const location = useLocation();
   const returnToMap = Boolean(location.state?.returnToMap);
+  const returnFloor = typeof location.state?.activeFloor === "number" ? location.state.activeFloor : 0;
 
   const goBackToEspacios = () => {
     navigate("/espacios", {
-      state: { showMapView: returnToMap },
+      state: { showMapView: returnToMap, activeFloor: returnFloor, editedSpaceId: id },
     });
   };
 
