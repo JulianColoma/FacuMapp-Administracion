@@ -8,29 +8,50 @@ export default function Eventos() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-
-  const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 6;
+  const [total, setTotal] = useState(0);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [cursorHistory, setCursorHistory] = useState([null]);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const currentCursor = cursorHistory[currentPage - 1] ?? null;
+  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
 
-  const fetchEventos = async () => {
+  const fetchEventos = async (cursor = null, search = "") => {
     try {
-      const response = await fetch(`${API_URL}/evento`);
+      setLoading(true);
+      setError(null);
+
+      const params = new URLSearchParams({ limit: String(ITEMS_PER_PAGE) });
+      const normalizedSearch = search.trim();
+
+      if (cursor) params.set("cursor", cursor);
+      if (normalizedSearch) params.set("search", normalizedSearch);
+
+      const response = await fetch(`${API_URL}/evento?${params.toString()}`);
       if (!response.ok) {
         throw new Error("Error al obtener los eventos");
       }
+
       const data = await response.json();
-      setEventos(data);
-    } catch (error) {
-      setError(error.message);
+      setEventos(data.items ?? []);
+      setNextCursor(data.nextCursor ?? null);
+      setTotal(data.total ?? 0);
+    } catch (fetchError) {
+      setError(fetchError.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchEventos();
-  }, []);
+    fetchEventos(currentCursor, searchTerm);
+  }, [currentCursor, searchTerm]);
+
+  useEffect(() => {
+    setCursorHistory([null]);
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const isEventoPast = (evento) => {
     const endValue = evento?.fecha_fin;
@@ -50,7 +71,7 @@ export default function Eventos() {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar"
+      cancelButtonText: "Cancelar",
     });
 
     if (result.isConfirmed) {
@@ -75,38 +96,22 @@ export default function Eventos() {
           icon: "success",
           title: "¡Eliminado!",
           text: "El evento ha sido eliminado",
-          confirmButtonText: "Aceptar"
+          confirmButtonText: "Aceptar",
         });
-        fetchEventos();
-      } catch (error) {
+
+        fetchEventos(currentCursor, searchTerm);
+      } catch (deleteError) {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: error.message.includes("permisos") ? error.message : "Error al eliminar el evento",
-          confirmButtonText: "Aceptar"
+          text: deleteError.message.includes("permisos")
+            ? deleteError.message
+            : "Error al eliminar el evento",
+          confirmButtonText: "Aceptar",
         });
       }
     }
   };
-
-  const filteredEventos = eventos.filter(ev =>
-    ev.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ev.descripcion.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredEventos.length / ITEMS_PER_PAGE);
-
-  const paginatedEventos = filteredEventos.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
-
-
 
   if (loading) {
     return (
@@ -141,7 +146,7 @@ export default function Eventos() {
             Gestión de Eventos
           </h1>
           <p className="text-muted mb-0">
-            {eventos.length} {eventos.length === 1 ? 'evento registrado' : 'eventos registrados'}
+            {total} {total === 1 ? "evento registrado" : "eventos registrados"}
           </p>
         </div>
         <Link to="/add-evento" className="btn btn-primary px-4">
@@ -157,22 +162,19 @@ export default function Eventos() {
             className="form-control form-control-custom"
             placeholder="Buscar eventos..."
             value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      {filteredEventos.length === 0 ? (
+      {eventos.length === 0 ? (
         <div className="custom-card text-center py-5">
           <i className="bi bi-calendar-event display-1 text-muted mb-3"></i>
           <h4 className="text-muted">
-            {searchTerm ? 'No se encontraron eventos' : 'No hay eventos registrados'}
+            {searchTerm ? "No se encontraron eventos" : "No hay eventos registrados"}
           </h4>
           <p className="text-muted mb-4">
-            {searchTerm ? 'Intenta con otros términos de búsqueda' : 'Comienza agregando tu primer evento'}
+            {searchTerm ? "Intenta con otros términos de búsqueda" : "Comienza agregando tu primer evento"}
           </p>
           {!searchTerm && (
             <Link to="/add-evento" className="btn btn-custom">
@@ -184,68 +186,68 @@ export default function Eventos() {
       ) : (
         <>
           <div className="eventos-grid">
-            {paginatedEventos.map((ev) => {
+            {eventos.map((ev) => {
               const eventoPasado = isEventoPast(ev);
               return (
-              <div key={ev.id} className="evento-card-compact">
-                <div className="evento-card-content">
-                  <div className="evento-card-header">
-                    <div className="evento-header-main">
-                      <h5 className="evento-card-title">{ev.nombre}</h5>
+                <div key={ev.id} className="evento-card-compact">
+                  <div className="evento-card-content">
+                    <div className="evento-card-header">
+                      <div className="evento-header-main">
+                        <h5 className="evento-card-title">{ev.nombre}</h5>
 
-                      {ev.nombre_espacio && (
-                        <div className="evento-card-location">
-                          <i className="bi bi-geo-alt-fill"></i>
-                          <span>{ev.nombre_espacio}</span>
-                        </div>
+                        {ev.nombre_espacio && (
+                          <div className="evento-card-location">
+                            <i className="bi bi-geo-alt-fill"></i>
+                            <span>{ev.nombre_espacio}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <p className="evento-card-description">{ev.descripcion}</p>
+
+                    <div className="evento-card-dates">
+                      <i className="bi bi-calendar-check"></i>
+                      <span className="date-text">
+                        {ev.fecha_inicio.split("-").reverse().join("/")}
+                      </span>
+                      <span className="date-separator">→</span>
+                      <span className="date-text">
+                        {ev.fecha_fin.split("-").reverse().join("/")}
+                      </span>
+                    </div>
+
+                    <div className="evento-card-actions">
+                      <Link
+                        to={`/eventos/${ev.id}`}
+                        className="evento-btn evento-btn-primary"
+                      >
+                        <i className="bi bi-list-ul"></i>
+                        <span>Ver Actividades</span>
+                      </Link>
+
+                      {!eventoPasado && (
+                        <Link
+                          to={`/edit-evento/${ev.id}`}
+                          className="evento-btn-icon"
+                          title="Editar evento"
+                        >
+                          <i className="bi bi-pencil"></i>
+                        </Link>
+                      )}
+
+                      {!eventoPasado && (
+                        <button
+                          className="evento-btn-icon evento-btn-delete"
+                          onClick={() => handleDelete(ev.id)}
+                          title="Eliminar evento"
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
                       )}
                     </div>
                   </div>
-
-                  <p className="evento-card-description">{ev.descripcion}</p>
-
-                  <div className="evento-card-dates">
-                    <i className="bi bi-calendar-check"></i>
-                    <span className="date-text">
-                      {ev.fecha_inicio.split("-").reverse().join("/")}
-                    </span>
-                    <span className="date-separator">→</span>
-                    <span className="date-text">
-                      {ev.fecha_fin.split("-").reverse().join("/")}
-                    </span>
-                  </div>
-
-                  <div className="evento-card-actions">
-                    <Link
-                      to={`/eventos/${ev.id}`}
-                      className="evento-btn evento-btn-primary"
-                    >
-                      <i className="bi bi-list-ul"></i>
-                      <span>Ver Actividades</span>
-                    </Link>
-
-                    {!eventoPasado && (
-                      <Link
-                        to={`/edit-evento/${ev.id}`}
-                        className="evento-btn-icon"
-                        title="Editar evento"
-                      >
-                        <i className="bi bi-pencil"></i>
-                      </Link>
-                    )}
-
-                    {!eventoPasado && (
-                      <button
-                        className="evento-btn-icon evento-btn-delete"
-                        onClick={() => handleDelete(ev.id)}
-                        title="Eliminar evento"
-                      >
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    )}
-                  </div>
                 </div>
-              </div>
               );
             })}
           </div>
@@ -267,8 +269,16 @@ export default function Eventos() {
 
               <button
                 className="pagination-btn next"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
+                disabled={!nextCursor}
+                onClick={() => {
+                  if (!nextCursor) return;
+                  setCursorHistory((prev) => {
+                    const nextIndex = currentPage;
+                    if (prev[nextIndex] === nextCursor) return prev;
+                    return [...prev.slice(0, nextIndex), nextCursor];
+                  });
+                  setCurrentPage((p) => p + 1);
+                }}
               >
                 <span>Siguiente</span>
                 <i className="bi bi-chevron-right"></i>
@@ -280,4 +290,3 @@ export default function Eventos() {
     </div>
   );
 }
-

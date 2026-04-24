@@ -2,6 +2,7 @@ import { UserModel } from "../models/user.js";
 import { userLoginSchema, userSchema } from "../schemas/user.js";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import { parsePaginationParams } from "../utils/pagination.js";
 
 dotenv.config();
 
@@ -57,7 +58,9 @@ export class UserController {
 
   static getAll = async (req, res) => {
     try {
-      const users = await UserModel.getAll();
+      const { search = "" } = req.query;
+      const { limit, cursorId } = parsePaginationParams(req.query);
+      const users = await UserModel.getAll({ search, limit, cursorId });
       res.status(200).json(users);
     } catch (error) {
       console.error(error);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { API_URL } from "../../config";
 import CategoryManagerModal from "../../components/CategoryManagerModal";
@@ -18,6 +18,15 @@ export default function EditEspacio() {
   const [generalError, setGeneralError] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnToMap = Boolean(location.state?.returnToMap);
+  const returnFloor = typeof location.state?.activeFloor === "number" ? location.state.activeFloor : 0;
+
+  const goBackToEspacios = () => {
+    navigate("/espacios", {
+      state: { showMapView: returnToMap, activeFloor: returnFloor, editedSpaceId: id },
+    });
+  };
 
   useEffect(() => {
     const fetchEspacio = async () => {
@@ -189,7 +198,7 @@ export default function EditEspacio() {
         text: "Espacio actualizado exitosamente",
         confirmButtonText: "Aceptar"
       });
-      navigate("/espacios");
+      goBackToEspacios();
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -357,7 +366,7 @@ export default function EditEspacio() {
 
           {/* Acciones */}
           <div className="d-flex justify-content-end gap-2">
-            <button type="button" className="btn btn-outline-secondary" onClick={() => navigate("/espacios")}>
+            <button type="button" className="btn btn-outline-secondary" onClick={goBackToEspacios}>
               <i className="bi bi-x-circle me-2"></i>
               Cancelar</button>
             <button type="submit" className="btn btn-primary px-4">

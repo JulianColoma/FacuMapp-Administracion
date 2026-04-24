@@ -7,6 +7,7 @@ import { EspacioModel, CategoriaModel } from "../models/espacio.js";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { parsePaginationParams } from "../utils/pagination.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,7 +15,14 @@ const __dirname = path.dirname(__filename);
 export class EspacioController {
   static getAll = async (req, res) => {
     try {
-      const espacios = await EspacioModel.getAll();
+      const { search = "", category = "" } = req.query;
+      const { limit, cursorId } = parsePaginationParams(req.query);
+      const espacios = await EspacioModel.getAll({
+        search,
+        category,
+        limit,
+        cursorId,
+      });
       res.status(200).json(espacios);
     } catch (error) {
       console.error(error);
