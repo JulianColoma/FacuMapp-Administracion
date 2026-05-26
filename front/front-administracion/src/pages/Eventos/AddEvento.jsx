@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { API_URL } from "../../config";
+import { fetchAllEspacios } from "../../utils/fetchEspacios";
 
 export default function AddEvento() {
   const [nombre, setNombre] = useState("");
@@ -22,12 +23,7 @@ const handleSearch = (e) => {
   useEffect(() => {
     const fetchEspacios = async () => {
       try {
-        const response = await fetch(`${API_URL}/espacio`);
-        if (!response.ok) {
-          throw new Error("Error al obtener espacios");
-        }
-        const data = await response.json();
-        setEspacios(data);
+        setEspacios(await fetchAllEspacios());
       } catch (error) {
         console.error("Error al cargar espacios:", error);
       }
