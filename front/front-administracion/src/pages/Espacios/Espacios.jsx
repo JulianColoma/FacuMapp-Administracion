@@ -107,7 +107,7 @@ export default function Espacios() {
         nextCursor: data.nextCursor ?? null,
         total: data.total ?? 0,
       });
-    } catch (_error) {
+    } catch {
       prefetchedPagesRef.current.delete(cacheKey);
     }
   }, [fetchPageData, getPageCacheKey]);
@@ -197,7 +197,7 @@ export default function Espacios() {
         }
 
         setMapEspacios(collected);
-      } catch (_error) {
+      } catch {
         setMapEspacios([]);
       } finally {
         setMapLoading(false);

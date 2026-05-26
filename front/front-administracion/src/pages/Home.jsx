@@ -43,8 +43,8 @@ export default function Home() {
         }
 
         setStats({
-          eventos: eventosData.length,
-          espacios: espaciosData.length,
+          eventos: eventosData.total ?? eventosData.length ?? 0,
+          espacios: espaciosData.total ?? espaciosData.length ?? 0,
           actividades: actividadesCount
         });
       } catch (error) {

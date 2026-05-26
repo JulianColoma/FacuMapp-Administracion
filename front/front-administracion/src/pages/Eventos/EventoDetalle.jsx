@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { API_URL } from "../../config";
 import "../../App.scss";
@@ -10,7 +10,6 @@ export default function EventoDetalle() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [evento, setEvento] = useState(null);
-  const navigate = useNavigate();
 
   const isEventoPast = (endValue) => {
     if (!endValue) return false;
@@ -27,7 +26,7 @@ export default function EventoDetalle() {
     return endDate < new Date();
   };
 
-  const fetchEventoYActividades = async () => {
+  const fetchEventoYActividades = useCallback(async () => {
     try {
       const eventoResponse = await fetch(`${API_URL}/evento/${id}`);
       if (!eventoResponse.ok) {
@@ -49,11 +48,11 @@ export default function EventoDetalle() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchEventoYActividades();
-  }, [id]);
+  }, [fetchEventoYActividades]);
 
   const handleDelete = async (actividadId) => {
     const result = await Swal.fire({
