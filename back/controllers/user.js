@@ -8,9 +8,10 @@ dotenv.config();
 
 export class UserController {
   static create = async (req, res) => {
-    //Validamos la session
-    //const { user } = req.session
-    //if(!user || !user.admin) return res.status(403).send('Access not authorized')
+    const { user } = req.session;
+    if (!user || !user.admin) {
+      return res.status(403).send("Access not authorized");
+    }
 
     try {
       const validated_input = userSchema.parse(req.body);
@@ -57,6 +58,11 @@ export class UserController {
   };
 
   static getAll = async (req, res) => {
+    const { user } = req.session;
+    if (!user || !user.admin) {
+      return res.status(403).send("Access not authorized");
+    }
+
     try {
       const { search = "" } = req.query;
       const { limit, cursorId } = parsePaginationParams(req.query);

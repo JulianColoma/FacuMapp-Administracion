@@ -29,7 +29,13 @@ export default function Usuarios() {
         if (currentCursor) params.set("cursor", currentCursor);
         if (normalizedSearch) params.set("search", normalizedSearch);
 
-        const response = await fetch(`${API_URL}/getuser?${params.toString()}`);
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_URL}/getuser?${params.toString()}`, {
+          credentials: "include",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
         if (!response.ok) {
           throw new Error("Error al obtener los usuarios");
         }

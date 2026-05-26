@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Home from "./pages/Home.jsx";
 import Espacios from "./pages/Espacios/Espacios.jsx";
@@ -19,6 +19,14 @@ const AppContent = () => {
   const navigate = useNavigate();
   const isLoginPage = location.pathname === '/login';
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const storedUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("user"));
+    } catch {
+      return null;
+    }
+  })();
+  const isAdmin = Boolean(storedUser?.administrador);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -84,10 +92,12 @@ const AppContent = () => {
                 <i className="bi bi-calendar-event me-2"></i>
                 Eventos
               </Link>
-              <Link className={getLinkClass(['/usuarios', '/add-user'])} to="/usuarios" onClick={closeSidebar}>
-                <i className="bi bi-people me-2"></i>
-                Usuarios
-              </Link>
+              {isAdmin && (
+                <Link className={getLinkClass(['/usuarios', '/add-user'])} to="/usuarios" onClick={closeSidebar}>
+                  <i className="bi bi-people me-2"></i>
+                  Usuarios
+                </Link>
+              )}
               <button className="sidebar-link logout-btn" onClick={() => { handleLogout(); closeSidebar(); }}>
                 <i className="bi bi-box-arrow-right me-2"></i>
                 Cerrar Sesión
@@ -111,8 +121,14 @@ const AppContent = () => {
           <Route path="/eventos/:id" element={<EventoDetalle />} />
           <Route path="/eventos/:id/add-actividad" element={<AddActividad />} />
           <Route path="/eventos/:id/edit-actividad/:actividadId" element={<EditActividad />} />
-          <Route path="/usuarios" element={<Usuarios />} />
-          <Route path="/add-user" element={<AddUser />} />
+          <Route
+            path="/usuarios"
+            element={isAdmin ? <Usuarios /> : <Navigate to="/" replace />}
+          />
+          <Route
+            path="/add-user"
+            element={isAdmin ? <AddUser /> : <Navigate to="/" replace />}
+          />
           <Route path="/login" element={<Login />} />
         </Routes>
       </div>
