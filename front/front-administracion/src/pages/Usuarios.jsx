@@ -6,6 +6,7 @@ import { API_URL } from "../config";
 export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const ITEMS_PER_PAGE = 6;
@@ -28,7 +29,13 @@ export default function Usuarios() {
         if (currentCursor) params.set("cursor", currentCursor);
         if (normalizedSearch) params.set("search", normalizedSearch);
 
-        const response = await fetch(`${API_URL}/getuser?${params.toString()}`);
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_URL}/getuser?${params.toString()}`, {
+          credentials: "include",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
         if (!response.ok) {
           throw new Error("Error al obtener los usuarios");
         }
@@ -41,6 +48,7 @@ export default function Usuarios() {
         setError(fetchError.message);
       } finally {
         setLoading(false);
+        setIsInitialLoad(false);
       }
     };
 
@@ -104,7 +112,7 @@ export default function Usuarios() {
     }
   };
 
-  if (loading) {
+  if (loading && isInitialLoad) {
     return (
       <div className="page-container">
         <div className="text-center py-5">
@@ -148,13 +156,25 @@ export default function Usuarios() {
 
       <div className="row mb-4">
         <div className="col-12">
-          <input
-            type="text"
-            className="form-control form-control-custom"
-            placeholder="Buscar usuarios..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="position-relative">
+            <input
+              type="text"
+              className="form-control form-control-custom pe-5"
+              placeholder="Buscar usuarios..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="btn-clear-input"
+                aria-label="Limpiar búsqueda"
+                onClick={() => setSearchTerm("")}
+              >
+                <i className="bi bi-x"></i>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

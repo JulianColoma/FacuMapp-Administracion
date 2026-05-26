@@ -76,7 +76,7 @@ const AddUser = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Error al crear el usuario",
+        text: error?.message || "Error al crear el usuario",
         confirmButtonText: "Aceptar"
       });
     }

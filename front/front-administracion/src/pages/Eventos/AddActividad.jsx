@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from "../../config";
+import { fetchAllEspacios } from "../../utils/fetchEspacios";
 
 export default function AddActividad() {
   const { id } = useParams();
@@ -17,11 +18,7 @@ export default function AddActividad() {
   useEffect(() => {
     const fetchEspacios = async () => {
       try {
-        const response = await fetch(`${API_URL}/espacio`, {
-          credentials: "include",
-        });
-        const data = await response.json();
-        setEspacios(data);
+        setEspacios(await fetchAllEspacios());
       } catch (error) {
         console.error("Error al cargar espacios:", error);
       }

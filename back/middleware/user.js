@@ -27,3 +27,14 @@ export function getUserData(req, res, next) {
     }
     next()
 }
+
+export function requireAdmin(req, res, next) {
+    const user = req.session?.user;
+    const isAdmin = user?.admin ?? user?.administrador;
+
+    if (!user || !isAdmin) {
+        return res.status(403).send("Access not authorized");
+    }
+
+    next();
+}

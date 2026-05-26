@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { API_URL } from "../../config";
+import { fetchAllEspacios } from "../../utils/fetchEspacios";
 
 export default function EditActividad() {
   const { id: eventoId, actividadId } = useParams();
@@ -70,14 +71,7 @@ export default function EditActividad() {
     const loadEspacios = async () => {
       try {
         const token = localStorage.getItem("token");
-        const resp = await fetch(`${API_URL}/espacio`, {
-          credentials: "include",
-          headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
-        const data = await resp.json();
-        setEspacios(Array.isArray(data) ? data : []);
+        setEspacios(await fetchAllEspacios({ token }));
       } catch (e) {
         console.error("Error cargando espacios", e);
       }

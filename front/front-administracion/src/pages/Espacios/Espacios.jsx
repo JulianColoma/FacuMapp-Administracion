@@ -14,6 +14,7 @@ export default function Espacios() {
   const [mapEspacios, setMapEspacios] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [mapLoading, setMapLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -107,7 +108,7 @@ export default function Espacios() {
         nextCursor: data.nextCursor ?? null,
         total: data.total ?? 0,
       });
-    } catch (_error) {
+    } catch {
       prefetchedPagesRef.current.delete(cacheKey);
     }
   }, [fetchPageData, getPageCacheKey]);
@@ -122,6 +123,7 @@ export default function Espacios() {
       setNextCursor(cachedPage.nextCursor);
       setTotal(cachedPage.total);
       setLoading(false);
+      setIsInitialLoad(false);
 
       if (cachedPage.nextCursor) {
         prefetchEspacios(cachedPage.nextCursor, search, category);
@@ -151,6 +153,7 @@ export default function Espacios() {
       setError(error.message);
     } finally {
       setLoading(false);
+      setIsInitialLoad(false);
     }
   }, [fetchPageData, getPageCacheKey, prefetchEspacios]);
 
@@ -197,7 +200,7 @@ export default function Espacios() {
         }
 
         setMapEspacios(collected);
-      } catch (_error) {
+      } catch {
         setMapEspacios([]);
       } finally {
         setMapLoading(false);
@@ -260,7 +263,7 @@ export default function Espacios() {
     });
   };
 
-  if (loading) return <div className="text-center py-5">Cargando...</div>;
+  if (loading && isInitialLoad) return <div className="text-center py-5">Cargando...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
@@ -301,6 +304,16 @@ export default function Espacios() {
                 setSearchTerm(e.target.value);
               }}
             />
+            {searchTerm && (
+              <button
+                type="button"
+                className="filters-clear me-2"
+                aria-label="Limpiar búsqueda"
+                onClick={() => setSearchTerm("")}
+              >
+                <i className="bi bi-x"></i>
+              </button>
+            )}
             <button
               type="button"
               className={`filters-view-toggle ${showMapView ? "is-active" : ""}`}
@@ -411,94 +424,108 @@ export default function Espacios() {
       <div className="row">
         {!showMapView && (
         <div className="col-12 mb-4">
-          <div className="grid-container">
-            {espacios.map((esp) => {
-              const imageUrl = esp.imagen ? `${API_URL}/uploads/${esp.imagen}` : null;
-              return (
-                <div key={esp.id} className="custom-card">
-                  <div className="space-card-image">
-                    <img
-                      src={imageUrl || "/images/no-image.png"}
-                      alt={esp.nombre}
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = "https://placehold.co/600x400?text=Sin+Imagen";
-                      }}
-                    />
-                  </div>
-                  <div className="card-body">
-                    <h5 className="card-title">{esp.nombre}</h5>
-                    <p className="card-text">
-                      {esp.descripcion || "Sin descripción disponible."}
-                    </p>
-                    {esp.categorias && esp.categorias.length > 0 && (
-                      <div className="mb-2 d-flex flex-wrap gap-2">
-                        {esp.categorias.slice(0, 3).map((cat) => (
-                          <span
-                            key={cat.id}
-                            className="badge badge-custom"
-                            style={{ backgroundColor: cat.color || undefined }}
-                          >
-                            {cat.nombre}
-                          </span>
-                        ))}
-                        {esp.categorias.length > 3 && (
-                          <span className="badge bg-secondary">
-                            +{esp.categorias.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    <div className="card-capacity">
-                      <i className="bi bi-people-fill"></i>
-                      Capacidad: {esp.capacidad} personas
-                    </div>
-                    <Link
-                      to={`/edit-espacio/${esp.id}`}
-                      className="btn btn-edit"
-                    >
-                      Editar
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          {totalPages > 1 && (
-            <div className="pagination-futuristic">
-              <button
-                className="pagination-btn prev"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
-              >
-                <i className="bi bi-chevron-left"></i>
-                <span>Anterior</span>
-              </button>
-
-              <div className="pagination-indicator">
-                {currentPage} / {totalPages}
-              </div>
-
-              <button
-                className="pagination-btn next"
-                disabled={!nextCursor}
-                onClick={() => {
-                  if (!nextCursor) return;
-                  setCursorHistory((prev) => {
-                    const nextIndex = currentPage;
-                    if (prev[nextIndex] === nextCursor) return prev;
-                    return [...prev.slice(0, nextIndex), nextCursor];
-                  });
-                  setCurrentPage((p) => p + 1);
-                }}
-              >
-                <span>Siguiente</span>
-                <i className="bi bi-chevron-right"></i>
-              </button>
-
+          {espacios.length === 0 ? (
+            <div className="custom-card text-center py-5">
+              <i className="bi bi-building display-1 text-muted mb-3"></i>
+              <h4 className="text-muted">
+                {searchTerm || selectedCategory ? "No se encontraron espacios" : "No hay espacios registrados"}
+              </h4>
+              <p className="text-muted mb-4">
+                {searchTerm || selectedCategory ? "Intenta con otros términos o filtros de búsqueda" : "No hay espacios cargados actualmente."}
+              </p>
             </div>
+          ) : (
+            <>
+              <div className="grid-container">
+                {espacios.map((esp) => {
+                  const imageUrl = esp.imagen ? `${API_URL}/uploads/${esp.imagen}` : null;
+                  return (
+                    <div key={esp.id} className="custom-card">
+                      <div className="space-card-image">
+                        <img
+                          src={imageUrl || "/images/no-image.png"}
+                          alt={esp.nombre}
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "https://placehold.co/600x400?text=Sin+Imagen";
+                          }}
+                        />
+                      </div>
+                      <div className="card-body">
+                        <h5 className="card-title">{esp.nombre}</h5>
+                        <p className="card-text">
+                          {esp.descripcion || "Sin descripción disponible."}
+                        </p>
+                        {esp.categorias && esp.categorias.length > 0 && (
+                          <div className="mb-2 d-flex flex-wrap gap-2">
+                            {esp.categorias.slice(0, 3).map((cat) => (
+                              <span
+                                key={cat.id}
+                                className="badge badge-custom"
+                                style={{ backgroundColor: cat.color || undefined }}
+                              >
+                                {cat.nombre}
+                              </span>
+                            ))}
+                            {esp.categorias.length > 3 && (
+                              <span className="badge bg-secondary">
+                                +{esp.categorias.length - 3}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        <div className="card-capacity">
+                          <i className="bi bi-people-fill"></i>
+                          Capacidad: {esp.capacidad} personas
+                        </div>
+                        <Link
+                          to={`/edit-espacio/${esp.id}`}
+                          className="btn btn-edit"
+                        >
+                          Editar
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {totalPages > 1 && (
+                <div className="pagination-futuristic">
+                  <button
+                    className="pagination-btn prev"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => p - 1)}
+                  >
+                    <i className="bi bi-chevron-left"></i>
+                    <span>Anterior</span>
+                  </button>
+
+                  <div className="pagination-indicator">
+                    {currentPage} / {totalPages}
+                  </div>
+
+                  <button
+                    className="pagination-btn next"
+                    disabled={!nextCursor}
+                    onClick={() => {
+                      if (!nextCursor) return;
+                      setCursorHistory((prev) => {
+                        const nextIndex = currentPage;
+                        if (prev[nextIndex] === nextCursor) return prev;
+                        return [...prev.slice(0, nextIndex), nextCursor];
+                      });
+                      setCurrentPage((p) => p + 1);
+                    }}
+                  >
+                    <span>Siguiente</span>
+                    <i className="bi bi-chevron-right"></i>
+                  </button>
+
+                </div>
+              )}
+            </>
           )}
         </div>
         )}
