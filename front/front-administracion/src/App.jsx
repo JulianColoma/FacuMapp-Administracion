@@ -34,6 +34,16 @@ const AppContent = () => {
     setSidebarOpen(false);
   };
 
+  const getLinkClass = (paths) => {
+    const isActive = paths.some(path => {
+      if (path === '/') {
+        return location.pathname === '/';
+      }
+      return location.pathname.startsWith(path);
+    });
+    return `sidebar-link ${isActive ? 'active' : ''}`;
+  };
+
   return (
     <div className="app-container">
       {!isLoginPage && (
@@ -55,26 +65,26 @@ const AppContent = () => {
           {/* Sidebar */}
           <div className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
             <div className="sidebar-header">
-              <div className="sidebar-brand">
-                <img className="sidebar-logo" src="/images/UTN_logo.jpg" alt="UTN" />
+              <Link className="sidebar-brand" to="/" onClick={closeSidebar}>
+                <img className="sidebar-logo" src="/images/Facumapp-logo.jpeg" alt="FacuMapp Logo" />
                 <h4 className="sidebar-title">FacuMapp</h4>
-              </div>
+              </Link>
               <button className="btn-close btn-close-white d-lg-none" onClick={closeSidebar}></button>
             </div>
             <nav className="sidebar-nav">
-              <Link className="sidebar-link" to="/" onClick={closeSidebar}>
+              <Link className={getLinkClass(['/'])} to="/" onClick={closeSidebar}>
                 <i className="bi bi-house-door me-2"></i>
                 Inicio
               </Link>
-              <Link className="sidebar-link" to="/espacios" onClick={closeSidebar}>
+              <Link className={getLinkClass(['/espacios', '/edit-espacio'])} to="/espacios" onClick={closeSidebar}>
                 <i className="bi bi-building me-2"></i>
                 Espacios
               </Link>
-              <Link className="sidebar-link" to="/eventos" onClick={closeSidebar}>
+              <Link className={getLinkClass(['/eventos', '/add-evento', '/edit-evento'])} to="/eventos" onClick={closeSidebar}>
                 <i className="bi bi-calendar-event me-2"></i>
                 Eventos
               </Link>
-              <Link className="sidebar-link" to="/usuarios" onClick={closeSidebar}>
+              <Link className={getLinkClass(['/usuarios', '/add-user'])} to="/usuarios" onClick={closeSidebar}>
                 <i className="bi bi-people me-2"></i>
                 Usuarios
               </Link>

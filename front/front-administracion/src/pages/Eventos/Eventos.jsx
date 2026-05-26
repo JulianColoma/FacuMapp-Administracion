@@ -6,6 +6,7 @@ import { API_URL } from "../../config";
 export default function Eventos() {
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const ITEMS_PER_PAGE = 6;
@@ -41,6 +42,7 @@ export default function Eventos() {
       setError(fetchError.message);
     } finally {
       setLoading(false);
+      setIsInitialLoad(false);
     }
   };
 
@@ -113,7 +115,7 @@ export default function Eventos() {
     }
   };
 
-  if (loading) {
+  if (loading && isInitialLoad) {
     return (
       <div className="page-container">
         <div className="text-center py-5">
@@ -157,13 +159,25 @@ export default function Eventos() {
 
       <div className="row mb-4">
         <div className="col-12">
-          <input
-            type="text"
-            className="form-control form-control-custom"
-            placeholder="Buscar eventos..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="position-relative">
+            <input
+              type="text"
+              className="form-control form-control-custom pe-5"
+              placeholder="Buscar eventos..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="btn-clear-input"
+                aria-label="Limpiar búsqueda"
+                onClick={() => setSearchTerm("")}
+              >
+                <i className="bi bi-x"></i>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
